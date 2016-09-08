@@ -1,6 +1,6 @@
 {
   "generator-phaser": {
-    "projectName": "Awesome-game",
+    "projectName": "awesome",
     "esVersion": 6,
     "gameFolder": "game"
   }

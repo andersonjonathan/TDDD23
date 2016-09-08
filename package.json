@@ -1,5 +1,5 @@
 {
-  "name": "Awesome-game",
+  "name": "li.u-crawler",
   "version": "1.0.0",
   "description": "",
   "scripts": {
@@ -14,8 +14,8 @@
     "copy:phaser": "cp -rf node_modules/phaser/build/phaser.min.js build/phaser.min.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Jonathan Anderson & Jesper Lehtonen",
+  "license": "MIT",
   "dependencies": {
     "phaser": "^2.5.0"
   },

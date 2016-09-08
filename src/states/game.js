@@ -1,13 +1,16 @@
-class Menu extends Phaser.State {
 
-  constructor() {
-    super();
 
+//Documentation for Phaser's (2.5.0) states:: phaser.io/docs/2.5.0/Phaser.State.html
+class Game extends Phaser.State {
+
+  //initialization code in the constructor
+  constructor(game, parent) {
+    super(game,parent);
   }
 
   //Load operations (uses Loader), method called first
   preload() {
-  console.log("menu");
+
   }
 
   //Setup code, method called after preload
@@ -37,4 +40,4 @@ class Menu extends Phaser.State {
 
 }
 
-export default Menu;
+export default Game;

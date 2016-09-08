@@ -59,3 +59,9 @@ fabric.properties
 # modules.xml
 # .idea/misc.xml
 # *.ipr
+/npm-debug.log
+/.idea/
+/.idea/watcherTasks.xml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/TDDD23.iml
