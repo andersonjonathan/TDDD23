@@ -17,7 +17,7 @@ class Game extends Phaser.State {
         this.game.load.image('sky', 'assets/sky.png');
         this.game.load.image('ground', 'assets/platform.png');
         this.game.load.image('star', 'assets/star.png');
-        this.game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
+        this.game.load.spritesheet('dude', 'assets/student.png', 40, 40);
     }
 
     //Setup code, method called after preload
@@ -64,8 +64,14 @@ class Game extends Phaser.State {
         this.player.body.collideWorldBounds = true;
 
         //  Our two animations, walking left and right.
-        this.player.animations.add('left', [0, 1, 2, 3], 10, true);
-        this.player.animations.add('right', [5, 6, 7, 8], 10, true);
+        this.player.animations.add('left', [9, 10, 6], 10, true);
+        this.player.animations.add('right', [11, 7, 8], 10, true);
+        this.player.animations.add('up', [5, 0, 1], 10, true);
+        this.player.animations.add('down', [2, 3, 4], 10, true);
+        this.player.animations.add('leftup', [18, 21, 22], 10, true);
+        this.player.animations.add('rightup', [12, 13, 17], 10, true);
+        this.player.animations.add('leftdown', [14, 15, 16], 10, true);
+        this.player.animations.add('rightdown', [19, 20, 23], 10, true);
         this.cursors = this.game.input.keyboard.createCursorKeys();
     }
 
@@ -86,6 +92,7 @@ class Game extends Phaser.State {
             diagonal_penalty = 1/Math.sqrt(2);
         }
         var speed = this.player_speed * diagonal_penalty;
+
         if (this.cursors.up.isDown && this.cursors.down.isDown){
             for (var i = 0; i < fLen; i++) {
                 this.all_gui_obj[i].body.velocity.x = 0;
@@ -152,11 +159,7 @@ class Game extends Phaser.State {
                 }
             } else {
                 this.player.body.velocity.x = -speed;
-
-                this.player.animations.play('left');
             }
-
-            this.player.animations.play('left');
         } else if (this.cursors.right.isDown) {
             //  Move to the right
             if (!(this.player.position.x < (this.game.world.width - this.map_movement_border))){
@@ -171,11 +174,7 @@ class Game extends Phaser.State {
                 }
             } else {
                 this.player.body.velocity.x = speed;
-
-                this.player.animations.play('right');
             }
-
-            this.player.animations.play('right');
         } else {
             for (var i = 0; i < fLen; i++) {
                 this.all_gui_obj[i].body.velocity.x = 0;
@@ -189,7 +188,24 @@ class Game extends Phaser.State {
             }
             this.player.animations.stop();
 
-            this.player.frame = 4;
+            this.player.frame = 2;
+        }
+        if (this.cursors.up.isDown && this.cursors.right.isDown){
+            this.player.animations.play('rightup');
+        } else if (this.cursors.up.isDown && this.cursors.left.isDown){
+            this.player.animations.play('leftup');
+        } else if (this.cursors.up.isDown){
+            this.player.animations.play('up');
+        } else if (this.cursors.down.isDown && this.cursors.right.isDown){
+            this.player.animations.play('rightdown');
+        } else if (this.cursors.down.isDown && this.cursors.left.isDown){
+            this.player.animations.play('leftdown');
+        } else if (this.cursors.down.isDown){
+            this.player.animations.play('down');
+        } else if (this.cursors.right.isDown){
+            this.player.animations.play('right');
+        } else if (this.cursors.left.isDown){
+            this.player.animations.play('left');
         }
     }
 
