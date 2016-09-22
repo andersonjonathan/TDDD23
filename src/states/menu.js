@@ -7,7 +7,7 @@ class Menu extends Phaser.State {
 
   //Load operations (uses Loader), method called first
   preload() {
-  console.log("menu");
+    this.game.state.start('game');
   }
 
   //Setup code, method called after preload
