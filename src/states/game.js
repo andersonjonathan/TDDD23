@@ -8,6 +8,8 @@ class Game extends Phaser.State {
         this.player = undefined;
         this.cursors = undefined;
         this.all_gui_obj = [];
+        this.player_speed = 200;
+        this.map_movement_border = 150;
     }
 
     //Load operations (uses Loader), method called first
@@ -79,6 +81,11 @@ class Game extends Phaser.State {
         this.player.body.velocity.x = 0;
         this.player.body.velocity.y = 0;
         var fLen = this.all_gui_obj.length;
+        var diagonal_penalty = 1;
+        if ((this.cursors.up.isDown || this.cursors.down.isDown) && (this.cursors.up.isDown || this.cursors.down.isDown)){
+            diagonal_penalty = 1/Math.sqrt(2);
+        }
+        var speed = this.player_speed * diagonal_penalty;
         if (this.cursors.up.isDown && this.cursors.down.isDown){
             for (var i = 0; i < fLen; i++) {
                 this.all_gui_obj[i].body.velocity.x = 0;
@@ -89,33 +96,33 @@ class Game extends Phaser.State {
             this.player.frame = 4;
         } else if (this.cursors.up.isDown) {
             //  Move up
-            if(!(this.player.position.y > 100)){
+            if(!(this.player.position.y > this.map_movement_border)){
                 if(this.player.body.touching.up){
                     for (var i = 0; i < fLen; i++) {
                         this.all_gui_obj[i].body.velocity.y = 0;
                     }
                 } else {
                     for (var i = 0; i < fLen; i++) {
-                        this.all_gui_obj[i].body.velocity.y = 150;
+                        this.all_gui_obj[i].body.velocity.y = speed;
                     }
                 }
             } else {
-                this.player.body.velocity.y = -150;
+                this.player.body.velocity.y = -speed;
             }
         } else if (this.cursors.down.isDown) {
             //  Move up
-            if(!(this.player.position.y < (this.game.world.height - 100))){
+            if(!(this.player.position.y < (this.game.world.height - this.map_movement_border))){
                 if(this.player.body.touching.down){
                     for (var i = 0; i < fLen; i++) {
                         this.all_gui_obj[i].body.velocity.y = 0;
                     }
                 } else {
                     for (var i = 0; i < fLen; i++) {
-                        this.all_gui_obj[i].body.velocity.y = -150;
+                        this.all_gui_obj[i].body.velocity.y = -speed;
                     }
                 }
             } else {
-                this.player.body.velocity.y = 150;
+                this.player.body.velocity.y = speed;
             }
         } else {
             for (var i = 0; i < fLen; i++) {
@@ -133,18 +140,18 @@ class Game extends Phaser.State {
             this.player.frame = 4;
         } else if (this.cursors.left.isDown) {
             //  Move to the left
-            if(!(this.player.position.x > 100 )){
+            if(!(this.player.position.x > this.map_movement_border )){
                 if(this.player.body.touching.up){
                     for (var i = 0; i < fLen; i++) {
                         this.all_gui_obj[i].body.velocity.x = 0;
                     }
                 } else {
                     for (var i = 0; i < fLen; i++) {
-                        this.all_gui_obj[i].body.velocity.x = 150;
+                        this.all_gui_obj[i].body.velocity.x = speed;
                     }
                 }
             } else {
-                this.player.body.velocity.x = -150;
+                this.player.body.velocity.x = -speed;
 
                 this.player.animations.play('left');
             }
@@ -152,18 +159,18 @@ class Game extends Phaser.State {
             this.player.animations.play('left');
         } else if (this.cursors.right.isDown) {
             //  Move to the right
-            if (!(this.player.position.x < (this.game.world.width - 100))){
+            if (!(this.player.position.x < (this.game.world.width - this.map_movement_border))){
                 if(this.player.body.touching.up){
                     for (var i = 0; i < fLen; i++) {
                         this.all_gui_obj[i].body.velocity.x = 0;
                     }
                 } else {
                     for (var i = 0; i < fLen; i++) {
-                        this.all_gui_obj[i].body.velocity.x = -150;
+                        this.all_gui_obj[i].body.velocity.x = -speed;
                     }
                 }
             } else {
-                this.player.body.velocity.x = 150;
+                this.player.body.velocity.x = speed;
 
                 this.player.animations.play('right');
             }
