@@ -71,107 +71,118 @@ class Game extends Phaser.State {
     update() {
         this.game.physics.arcade.collide(this.player, this.platforms);
         //  Reset the players velocity (movement)
+        this.move();
+
+    }
+
+    move(){
         this.player.body.velocity.x = 0;
         this.player.body.velocity.y = 0;
         var fLen = this.all_gui_obj.length;
-        console.log(this.player.position.x);
-        if (this.player.position.x < 100 || this.player.position.x > (this.game.world.width - 100) || this.player.position.y < 100 || this.player.position.y > (this.game.world.height - 100)){
+        if (this.cursors.up.isDown && this.cursors.down.isDown){
+            for (var i = 0; i < fLen; i++) {
+                this.all_gui_obj[i].body.velocity.x = 0;
+                this.all_gui_obj[i].body.velocity.y = 0;
+            }
+            this.player.animations.stop();
 
-            if (this.cursors.up.isDown) {
-                //  Move up
-                if(this.player.position.y < 100){
-                    this.player.body.velocity.y = -150;
+            this.player.frame = 4;
+        } else if (this.cursors.up.isDown) {
+            //  Move up
+            if(!(this.player.position.y > 100)){
+                if(this.player.body.touching.up){
+                    for (var i = 0; i < fLen; i++) {
+                        this.all_gui_obj[i].body.velocity.y = 0;
+                    }
                 } else {
                     for (var i = 0; i < fLen; i++) {
                         this.all_gui_obj[i].body.velocity.y = 150;
                     }
                 }
+            } else {
+                this.player.body.velocity.y = -150;
             }
-            else if (this.cursors.down.isDown) {
-                //  Move up
-                if(this.player.position.y > (this.game.world.height - 100)){
-                    this.player.body.velocity.y = 150;
+        } else if (this.cursors.down.isDown) {
+            //  Move up
+            if(!(this.player.position.y < (this.game.world.height - 100))){
+                if(this.player.body.touching.down){
+                    for (var i = 0; i < fLen; i++) {
+                        this.all_gui_obj[i].body.velocity.y = 0;
+                    }
                 } else {
                     for (var i = 0; i < fLen; i++) {
                         this.all_gui_obj[i].body.velocity.y = -150;
                     }
                 }
+            } else {
+                this.player.body.velocity.y = 150;
             }
+        } else {
+            for (var i = 0; i < fLen; i++) {
+                this.all_gui_obj[i].body.velocity.y = 0;
+            }
+        }
 
-            if (this.cursors.left.isDown) {
-                //  Move to the left
-                if(this.player.position.x > (this.game.world.width - 100) ){
-                    this.player.body.velocity.x = -150;
+        if (this.cursors.left.isDown && this.cursors.right.isDown){
+            for (var i = 0; i < fLen; i++) {
+                this.all_gui_obj[i].body.velocity.x = 0;
+                this.all_gui_obj[i].body.velocity.y = 0;
+            }
+            this.player.animations.stop();
 
-                    this.player.animations.play('left');
+            this.player.frame = 4;
+        } else if (this.cursors.left.isDown) {
+            //  Move to the left
+            if(!(this.player.position.x > 100 )){
+                if(this.player.body.touching.up){
+                    for (var i = 0; i < fLen; i++) {
+                        this.all_gui_obj[i].body.velocity.x = 0;
+                    }
                 } else {
                     for (var i = 0; i < fLen; i++) {
                         this.all_gui_obj[i].body.velocity.x = 150;
                     }
                 }
+            } else {
+                this.player.body.velocity.x = -150;
 
                 this.player.animations.play('left');
             }
-            else if (this.cursors.right.isDown) {
-                //  Move to the right
-                if (this.player.position.x < 100){
-                    this.player.body.velocity.x = 150;
 
-                    this.player.animations.play('right');
+            this.player.animations.play('left');
+        } else if (this.cursors.right.isDown) {
+            //  Move to the right
+            if (!(this.player.position.x < (this.game.world.width - 100))){
+                if(this.player.body.touching.up){
+                    for (var i = 0; i < fLen; i++) {
+                        this.all_gui_obj[i].body.velocity.x = 0;
+                    }
                 } else {
                     for (var i = 0; i < fLen; i++) {
                         this.all_gui_obj[i].body.velocity.x = -150;
                     }
                 }
-
-                this.player.animations.play('right');
-            }
-
-            if (!(this.cursors.right.isDown || this.cursors.left.isDown || this.cursors.up.isDown || this.cursors.down.isDown)) {
-                //  Stand still
-                for (var i = 0; i < fLen; i++) {
-                    this.all_gui_obj[i].body.velocity.x = 0;
-                    this.all_gui_obj[i].body.velocity.y = 0;
-                }
-                this.player.animations.stop();
-
-                this.player.frame = 4;
-            }
-        } else {
-            for (var i = 0; i < fLen; i++) {
-                this.all_gui_obj[i].body.velocity.x = 0;
-                this.all_gui_obj[i].body.velocity.y = 0;
-            }
-            if (this.cursors.up.isDown) {
-                //  Move up
-                this.player.body.velocity.y = -150;
-                //this.player.frame = 4;
-            }
-            else if (this.cursors.down.isDown) {
-                //  Move up
-                this.player.body.velocity.y = 150;
-                //this.player.frame = 4;
-            }
-
-            if (this.cursors.left.isDown) {
-                //  Move to the left
-                this.player.body.velocity.x = -150;
-
-                this.player.animations.play('left');
-            }
-            else if (this.cursors.right.isDown) {
-                //  Move to the right
+            } else {
                 this.player.body.velocity.x = 150;
 
                 this.player.animations.play('right');
             }
 
-            if (!(this.cursors.right.isDown || this.cursors.left.isDown || this.cursors.up.isDown || this.cursors.down.isDown)) {
-                //  Stand still
-                this.player.animations.stop();
-
-                this.player.frame = 4;
+            this.player.animations.play('right');
+        } else {
+            for (var i = 0; i < fLen; i++) {
+                this.all_gui_obj[i].body.velocity.x = 0;
             }
+        }
+        if (!(this.cursors.right.isDown || this.cursors.left.isDown || this.cursors.up.isDown || this.cursors.down.isDown)) {
+            //  Stand still
+            for (var i = 0; i < fLen; i++) {
+                this.all_gui_obj[i].body.velocity.x = 0;
+                this.all_gui_obj[i].body.velocity.y = 0;
+            }
+            this.player.animations.stop();
+
+            this.player.frame = 4;
         }
     }
 
