@@ -4,7 +4,7 @@
  import Game from './states/game';
 
 
-const game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.AUTO, 'awesome-game');
+const game = new Phaser.Game(800, 600, Phaser.AUTO, 'awesome-game');
 
  game.state.add('boot', new Boot());
  game.state.add('menu', new Menu());
