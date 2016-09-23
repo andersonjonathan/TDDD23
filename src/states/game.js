@@ -7,9 +7,21 @@ class Game extends Phaser.State {
         this.platforms = undefined;
         this.player = undefined;
         this.cursors = undefined;
-        this.all_gui_obj = [];
+        this.all_gui_obj = [];  // Add all objects except from the player in this array
         this.player_speed = 200;
         this.map_movement_border = 150;
+        this.player_facing = "s";
+        this.player_facing_mapping = {
+            "n": 5,
+            "ne": 17,
+            "nw": 18,
+            "s": 2,
+            "se": 23,
+            "sw": 14,
+            "e": 11,
+            "w": 6,
+        };
+        this.update_counter = 0;
     }
 
     //Load operations (uses Loader), method called first
@@ -84,6 +96,7 @@ class Game extends Phaser.State {
     }
 
     move(){
+        this.update_counter++;
         this.player.body.velocity.x = 0;
         this.player.body.velocity.y = 0;
         var fLen = this.all_gui_obj.length;
@@ -180,6 +193,33 @@ class Game extends Phaser.State {
                 this.all_gui_obj[i].body.velocity.x = 0;
             }
         }
+        if (this.update_counter % 10 == 0) {
+            if (this.cursors.up.isDown && this.cursors.right.isDown) {
+                this.player.animations.play('rightup');
+                this.player_facing = "ne";
+            } else if (this.cursors.up.isDown && this.cursors.left.isDown) {
+                this.player.animations.play('leftup');
+                this.player_facing = "nw";
+            } else if (this.cursors.up.isDown) {
+                this.player.animations.play('up');
+                this.player_facing = "n";
+            } else if (this.cursors.down.isDown && this.cursors.right.isDown) {
+                this.player.animations.play('rightdown');
+                this.player_facing = "se";
+            } else if (this.cursors.down.isDown && this.cursors.left.isDown) {
+                this.player.animations.play('leftdown');
+                this.player_facing = "sw";
+            } else if (this.cursors.down.isDown) {
+                this.player.animations.play('down');
+                this.player_facing = "s";
+            } else if (this.cursors.right.isDown) {
+                this.player.animations.play('right');
+                this.player_facing = "e";
+            } else if (this.cursors.left.isDown) {
+                this.player.animations.play('left');
+                this.player_facing = "w";
+            }
+        }
         if (!(this.cursors.right.isDown || this.cursors.left.isDown || this.cursors.up.isDown || this.cursors.down.isDown)) {
             //  Stand still
             for (var i = 0; i < fLen; i++) {
@@ -187,26 +227,9 @@ class Game extends Phaser.State {
                 this.all_gui_obj[i].body.velocity.y = 0;
             }
             this.player.animations.stop();
-
-            this.player.frame = 2;
+            this.player.frame = this.player_facing_mapping[this.player_facing];
         }
-        if (this.cursors.up.isDown && this.cursors.right.isDown){
-            this.player.animations.play('rightup');
-        } else if (this.cursors.up.isDown && this.cursors.left.isDown){
-            this.player.animations.play('leftup');
-        } else if (this.cursors.up.isDown){
-            this.player.animations.play('up');
-        } else if (this.cursors.down.isDown && this.cursors.right.isDown){
-            this.player.animations.play('rightdown');
-        } else if (this.cursors.down.isDown && this.cursors.left.isDown){
-            this.player.animations.play('leftdown');
-        } else if (this.cursors.down.isDown){
-            this.player.animations.play('down');
-        } else if (this.cursors.right.isDown){
-            this.player.animations.play('right');
-        } else if (this.cursors.left.isDown){
-            this.player.animations.play('left');
-        }
+        console.log(this.update_counter);
     }
 
     //Called when game is paused
