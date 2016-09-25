@@ -161,7 +161,7 @@ class Game extends Phaser.State {
         } else if (this.cursors.left.isDown) {
             //  Move to the left
             if(!(this.player.position.x > this.map_movement_border )){
-                if(this.player.body.touching.up){
+                if(this.player.body.touching.left){
                     for (var i = 0; i < fLen; i++) {
                         this.all_gui_obj[i].body.velocity.x = 0;
                     }
@@ -176,7 +176,7 @@ class Game extends Phaser.State {
         } else if (this.cursors.right.isDown) {
             //  Move to the right
             if (!(this.player.position.x < (this.game.world.width - this.map_movement_border))){
-                if(this.player.body.touching.up){
+                if(this.player.body.touching.right){
                     for (var i = 0; i < fLen; i++) {
                         this.all_gui_obj[i].body.velocity.x = 0;
                     }
