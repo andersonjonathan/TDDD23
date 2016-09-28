@@ -116,6 +116,9 @@ class Game extends Phaser.State {
         this.weapons = [];
         this.currentWeapon = 0;
         this.weaponName = null;
+        this.map = undefined;
+        this.layer = undefined;
+        this.solid_tiles = [17, 45]
     }
 
     //Load operations (uses Loader), method called first
@@ -143,7 +146,7 @@ class Game extends Phaser.State {
 
         this.layer = this.map.createLayer('Tile Layer 1');
 
-        var colliders = [17, 43];
+        var colliders = [17, 45];
         for (var i = 0; i < colliders.length; i++)
         {
             this.map.setCollision(colliders[i], true, this.layer);
@@ -190,6 +193,7 @@ class Game extends Phaser.State {
         this.game.physics.arcade.collide(this.player, this.layer);
         this.game.physics.arcade.collide(this.player, this.enemies);
         this.game.physics.arcade.collide(this.enemies, this.layer);
+
         //  Reset the players velocity (movement)
         this.move();
 
@@ -199,7 +203,10 @@ class Game extends Phaser.State {
         }
 
         this.game.physics.arcade.overlap(this.weapons, this.enemies, this.collisionHandler, null, this);
-
+        this.game.physics.arcade.overlap(this.weapons, this.layer, this.collisionHandlerWall, null, this);
+        if (this.update_counter % 100 == 0) {
+            //console.log(this.map.getTile(Math.round(this.player.position.x/32), Math.round(this.player.position.y/32), this.layer).index);
+        }
     }
 
     collisionHandler (bullet, enemy) {
@@ -207,6 +214,15 @@ class Game extends Phaser.State {
         //  When a bullet hits an alien we kill them both
         bullet.kill();
         enemy.kill();
+
+
+    }
+    collisionHandlerWall (bullet, wall) {
+
+        //  When a bullet hits an alien we kill them both
+        if (this.solid_tiles.includes(wall.index)){
+            bullet.kill();
+        }
 
 
     }
