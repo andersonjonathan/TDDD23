@@ -124,7 +124,7 @@ class Game extends Phaser.State {
     create() {
         //  We're going to be using physics, so enable the Ninja
         this.game.physics.startSystem(Phaser.Physics.Arcade);
-        this.game.world.setBounds(0, 0, 12800, 9600);
+        this.game.world.setBounds(0, 0, 10880, 8640);
         this.map = this.add.tilemap('map');
 
         this.map.addTilesetImage('tiles', 'tiles');
@@ -132,9 +132,13 @@ class Game extends Phaser.State {
 
         this.layer = this.map.createLayer('Tile Layer 1');
 
-        this.map.setCollision(17, true, this.layer);
+        var colliders = [17, 43];
+        for (var i = 0; i < colliders.length; i++)
+        {
+            this.map.setCollision(colliders[i], true, this.layer);
+        }
 
-        this.player = this.game.add.sprite(100, 9500, 'dude');
+        this.player = this.game.add.sprite(1870, 8076, 'dude');
 
         //  We need to enable physics on the player
         this.game.physics.arcade.enable(this.player);
