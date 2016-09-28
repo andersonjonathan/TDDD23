@@ -145,7 +145,7 @@ class Game extends Phaser.State {
 
         this.map.setCollision(17, true, this.layer);
 
-        this.player = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'dude');
+        this.player = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY - 560, 'dude');
 
         //  We need to enable physics on the player
         this.game.physics.arcade.enable(this.player);
@@ -172,16 +172,20 @@ class Game extends Phaser.State {
 
 
         //Lets create some baddies
-        var enemies = this.game.add.group();
-        enemies.enableBody = true;
+        this.enemies = this.game.add.group();
+        this.enemies.enableBody = true;
+        this.enemies.lives = 3;
 
-        this.map.createFromObjects('Others', 150, 'exam', 0, true, false, enemies);
+        this.map.createFromObjects('Others', 150, 'exam', 0, true, false, this.enemies);
+
 
     }
 
     //Code ran on each frame of game
     update() {
         this.game.physics.arcade.collide(this.player, this.layer);
+        this.game.physics.arcade.collide(this.player, this.enemies);
+        this.game.physics.arcade.collide(this.enemies, this.layer);
         //  Reset the players velocity (movement)
         this.move();
 
@@ -189,6 +193,17 @@ class Game extends Phaser.State {
         {
             this.weapons[this.currentWeapon].fire(this.player, this);
         }
+
+        this.game.physics.arcade.overlap(this.weapons, this.enemies, this.collisionHandler, null, this);
+
+    }
+
+    collisionHandler (bullet, enemy) {
+
+        //  When a bullet hits an alien we kill them both
+        bullet.kill();
+        enemy.kill();
+
 
     }
 
