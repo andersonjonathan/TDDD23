@@ -126,49 +126,30 @@ class Game extends Phaser.State {
         this.game.load.image('pencil', 'assets/pencil.png');
         this.game.load.spritesheet('dude', 'assets/student.png', 40, 40);
         this.game.load.spritesheet('exam', 'assets/exam.jpg');
+        this.game.load.tilemap('map', 'assets/maze.json', null, Phaser.Tilemap.TILED_JSON);
+        this.game.load.image('tiles', 'assets/tiles.png');
     }
 
     //Setup code, method called after preload
     create() {
         //  We're going to be using physics, so enable the Ninja
         this.game.physics.startSystem(Phaser.Physics.Arcade);
+        this.game.world.setBounds(0, 0, 1920, 1920);
+        this.map = this.add.tilemap('map');
 
-        //  A simple background for our game
-        this.game.add.sprite(0, 0, 'sky');
+        this.map.addTilesetImage('tiles', 'tiles');
 
-        //  The platforms group contains the ground and the 2 ledges we can jump on
-        this.platforms = this.game.add.group();
+        this.layer = this.map.createLayer('Tile Layer 1');
 
-        //  We will enable physics for any object that is created in this group
-        this.platforms.enableBody = true;
+        this.map.setCollision(17, true, this.layer);
 
-        // Here we create the ground.
-        var ground = this.platforms.create(0, this.game.world.height - 64, 'ground');
-        this.all_gui_obj.push(ground);
-
-        //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
-        ground.scale.setTo(2, 2);
-
-        //  This stops it from falling away when you jump on it
-        ground.body.immovable = true;
-
-        //  Now let's create two ledges
-        var ledge = this.platforms.create(400, 400, 'ground');
-        this.all_gui_obj.push(ledge);
-        ledge.body.immovable = true;
-
-        ledge = this.platforms.create(-150, 250, 'ground');
-        this.all_gui_obj.push(ledge);
-        ledge.body.immovable = true;
-
-        this.player = this.game.add.sprite(100, this.game.world.height - 150, 'dude');
+        this.player = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'dude');
 
         //  We need to enable physics on the player
         this.game.physics.arcade.enable(this.player);
 
+        this.game.camera.follow(this.player);
         //  Player physics properties. Give the little guy a slight bounce.
-        this.player.body.bounce.y = 0;
-        this.player.body.gravity.y = 0;
         this.player.body.collideWorldBounds = true;
 
         //  Our two animations, walking left and right.
@@ -186,7 +167,7 @@ class Game extends Phaser.State {
 
         this.weapons.push(new Weapon.SingleBullet(this.game));
         this.currentWeapon = 0;
-
+        
 
         //Lets create some baddies
         var enemies = this.game.add.group();
@@ -194,12 +175,11 @@ class Game extends Phaser.State {
 
         //this.map.createFromObjects('others', 6571, 'exam', 0, true, false, enemies);
 
-
     }
 
     //Code ran on each frame of game
     update() {
-        this.game.physics.arcade.collide(this.player, this.platforms);
+        this.game.physics.arcade.collide(this.player, this.layer);
         //  Reset the players velocity (movement)
         this.move();
 
@@ -222,91 +202,33 @@ class Game extends Phaser.State {
         var speed = this.player_speed * diagonal_penalty;
 
         if (this.cursors.up.isDown && this.cursors.down.isDown){
-            for (var i = 0; i < fLen; i++) {
-                this.all_gui_obj[i].body.velocity.x = 0;
-                this.all_gui_obj[i].body.velocity.y = 0;
-            }
+
             this.player.animations.stop();
 
             this.player.frame = 4;
         } else if (this.cursors.up.isDown) {
             //  Move up
-            if(!(this.player.position.y > this.map_movement_border)){
-                if(this.player.body.touching.up){
-                    for (var i = 0; i < fLen; i++) {
-                        this.all_gui_obj[i].body.velocity.y = 0;
-                    }
-                } else {
-                    for (var i = 0; i < fLen; i++) {
-                        this.all_gui_obj[i].body.velocity.y = speed;
-                    }
-                }
-            } else {
-                this.player.body.velocity.y = -speed;
-            }
+            this.player.body.velocity.y = -speed;
         } else if (this.cursors.down.isDown) {
             //  Move up
-            if(!(this.player.position.y < (this.game.world.height - this.map_movement_border))){
-                if(this.player.body.touching.down){
-                    for (var i = 0; i < fLen; i++) {
-                        this.all_gui_obj[i].body.velocity.y = 0;
-                    }
-                } else {
-                    for (var i = 0; i < fLen; i++) {
-                        this.all_gui_obj[i].body.velocity.y = -speed;
-                    }
-                }
-            } else {
-                this.player.body.velocity.y = speed;
-            }
-        } else {
-            for (var i = 0; i < fLen; i++) {
-                this.all_gui_obj[i].body.velocity.y = 0;
-            }
+            this.player.body.velocity.y = speed;
         }
 
         if (this.cursors.left.isDown && this.cursors.right.isDown){
-            for (var i = 0; i < fLen; i++) {
-                this.all_gui_obj[i].body.velocity.x = 0;
-                this.all_gui_obj[i].body.velocity.y = 0;
-            }
+
             this.player.animations.stop();
 
             this.player.frame = 4;
         } else if (this.cursors.left.isDown) {
             //  Move to the left
-            if(!(this.player.position.x > this.map_movement_border )){
-                if(this.player.body.touching.left){
-                    for (var i = 0; i < fLen; i++) {
-                        this.all_gui_obj[i].body.velocity.x = 0;
-                    }
-                } else {
-                    for (var i = 0; i < fLen; i++) {
-                        this.all_gui_obj[i].body.velocity.x = speed;
-                    }
-                }
-            } else {
+
                 this.player.body.velocity.x = -speed;
-            }
+
         } else if (this.cursors.right.isDown) {
             //  Move to the right
-            if (!(this.player.position.x < (this.game.world.width - this.map_movement_border))){
-                if(this.player.body.touching.right){
-                    for (var i = 0; i < fLen; i++) {
-                        this.all_gui_obj[i].body.velocity.x = 0;
-                    }
-                } else {
-                    for (var i = 0; i < fLen; i++) {
-                        this.all_gui_obj[i].body.velocity.x = -speed;
-                    }
-                }
-            } else {
+
                 this.player.body.velocity.x = speed;
-            }
-        } else {
-            for (var i = 0; i < fLen; i++) {
-                this.all_gui_obj[i].body.velocity.x = 0;
-            }
+
         }
         if (this.update_counter % 10 == 0) {
             if (this.cursors.up.isDown && this.cursors.right.isDown) {
@@ -337,10 +259,7 @@ class Game extends Phaser.State {
         }
         if (!(this.cursors.right.isDown || this.cursors.left.isDown || this.cursors.up.isDown || this.cursors.down.isDown)) {
             //  Stand still
-            for (var i = 0; i < fLen; i++) {
-                this.all_gui_obj[i].body.velocity.x = 0;
-                this.all_gui_obj[i].body.velocity.y = 0;
-            }
+
             this.player.animations.stop();
             this.player.frame = this.player_facing_mapping[this.player_facing];
         }
@@ -355,6 +274,9 @@ class Game extends Phaser.State {
 
     //You're able to do any final post-processing style effects here.
     render() {
+
+            this.game.debug.cameraInfo(this.game.camera, 32, 32);
+            this.game.debug.spriteCoords(this.player, 32, 500);
 
     }
 
