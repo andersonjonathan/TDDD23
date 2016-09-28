@@ -61,13 +61,13 @@ Weapon.SingleBullet = function (game) {
 
 Weapon.SingleBullet.prototype = Object.create(Phaser.Group.prototype);
 Weapon.SingleBullet.prototype.constructor = Weapon.SingleBullet;
-Weapon.SingleBullet.prototype.fire = function (source) {
+Weapon.SingleBullet.prototype.fire = function (source, game) {
 
     if (this.game.time.time < this.nextFire) { return; }
 
     var x = source.x + 10;
     var y = source.y + 10;
-    this.getFirstExists(false).fire(x, y, 0, this.bulletSpeed, 0, 0);
+    this.getFirstExists(false).fire(x, y, game.player_shooting_mapping[game.player_facing], this.bulletSpeed, 0, 0);
 
     this.nextFire = this.game.time.time + this.fireRate;
 
@@ -101,6 +101,16 @@ class Game extends Phaser.State {
             "e": 11,
             "w": 6,
         };
+        this.player_shooting_mapping = {
+            "n": 270,
+            "ne": 315,
+            "nw": 225,
+            "s": 90,
+            "se": 45,
+            "sw": 135,
+            "e": 0,
+            "w": 180,
+        };
         this.update_counter = 0;
 
         this.weapons = [];
@@ -115,6 +125,7 @@ class Game extends Phaser.State {
         this.game.load.image('star', 'assets/star.png');
         this.game.load.image('pencil', 'assets/pencil.png');
         this.game.load.spritesheet('dude', 'assets/student.png', 40, 40);
+        this.game.load.spritesheet('exam', 'assets/exam.jpg');
         this.game.load.tilemap('map', 'assets/maze.json', null, Phaser.Tilemap.TILED_JSON);
         this.game.load.image('tiles', 'assets/tiles.png');
         this.game.load.image('tiled_school', 'assets/tiled_school.png');
@@ -163,18 +174,40 @@ class Game extends Phaser.State {
         this.weapons.push(new Weapon.SingleBullet(this.game));
         this.currentWeapon = 0;
 
+
+        //Lets create some baddies
+        this.enemies = this.game.add.group();
+        this.enemies.enableBody = true;
+        this.enemies.lives = 3;
+
+        this.map.createFromObjects('Others', 150, 'exam', 0, true, false, this.enemies);
+
+
     }
 
     //Code ran on each frame of game
     update() {
         this.game.physics.arcade.collide(this.player, this.layer);
+        this.game.physics.arcade.collide(this.player, this.enemies);
+        this.game.physics.arcade.collide(this.enemies, this.layer);
         //  Reset the players velocity (movement)
         this.move();
 
         if (this.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR))
         {
-            this.weapons[this.currentWeapon].fire(this.player);
+            this.weapons[this.currentWeapon].fire(this.player, this);
         }
+
+        this.game.physics.arcade.overlap(this.weapons, this.enemies, this.collisionHandler, null, this);
+
+    }
+
+    collisionHandler (bullet, enemy) {
+
+        //  When a bullet hits an alien we kill them both
+        bullet.kill();
+        enemy.kill();
+
 
     }
 
