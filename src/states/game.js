@@ -326,7 +326,6 @@ class Game extends Phaser.State {
             this.player.animations.stop();
             this.player.frame = this.player_facing_mapping[this.player_facing];
         }
-        console.log(this.update_counter);
     }
 
 
