@@ -167,13 +167,13 @@ class Game extends Phaser.State {
 
         this.weapons.push(new Weapon.SingleBullet(this.game));
         this.currentWeapon = 0;
-        
+
 
         //Lets create some baddies
         var enemies = this.game.add.group();
         enemies.enableBody = true;
 
-        //this.map.createFromObjects('others', 6571, 'exam', 0, true, false, enemies);
+        this.map.createFromObjects('Others', 150, 'exam', 0, true, false, enemies);
 
     }
 
