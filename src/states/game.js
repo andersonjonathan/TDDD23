@@ -128,6 +128,7 @@ class Game extends Phaser.State {
         this.game.load.spritesheet('exam', 'assets/exam.jpg');
         this.game.load.tilemap('map', 'assets/maze.json', null, Phaser.Tilemap.TILED_JSON);
         this.game.load.image('tiles', 'assets/tiles.png');
+        this.game.load.image('tiled_school', 'assets/tiled_school.png');
     }
 
     //Setup code, method called after preload
@@ -138,6 +139,7 @@ class Game extends Phaser.State {
         this.map = this.add.tilemap('map');
 
         this.map.addTilesetImage('tiles', 'tiles');
+        this.map.addTilesetImage('tiled_school', 'tiled_school');
 
         this.layer = this.map.createLayer('Tile Layer 1');
 
