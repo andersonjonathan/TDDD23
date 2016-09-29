@@ -47,3 +47,16 @@ play on linux
 https://get.adobe.com/air/download/?installer=Adobe_AIR_22.0_for_Win32&standalone=1
 http://renderhjs.net/shoebox/
 Tiled
+
+#TODO
+* Springa
+* Liv
+* Baljan (Butik, köpa mer liv, kaffe som vapen)
+* Dörrar
+* Fiender (Skjuter mot dig, går mot dig)
+* Tenta 5 frågor
+* Klassrums inredning
+* Karta
+* Pause meny
+* Hjälp/kontroller
+* 

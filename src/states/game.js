@@ -88,6 +88,7 @@ class Game extends Phaser.State {
         this.player = undefined;
         this.cursors = undefined;
         this.all_gui_obj = [];  // Add all objects except from the player in this array
+        this.original_player_speed = 200;
         this.player_speed = 200;
         this.map_movement_border = 150;
         this.player_facing = "s";
@@ -287,13 +288,16 @@ class Game extends Phaser.State {
         {
             this.weapons[this.currentWeapon].fire(this.player, this);
         }
-
+        if (this.input.keyboard.isDown(Phaser.Keyboard.R))
+        {
+            this.player_speed = this.original_player_speed * 3
+        } else {
+            this.player_speed = this.original_player_speed
+        }
         this.game.physics.arcade.overlap(this.weapons, this.enemies, this.collisionHandler, null, this);
         this.game.physics.arcade.overlap(this.weapons, this.layer, this.collisionHandlerWall, null, this);
-        if (this.update_counter % 10 == 0) {
-            this.in_room();
-            //console.log(this.map.getTile(Math.round(this.player.position.x/32), Math.round(this.player.position.y/32), this.layer).index);
-        }
+
+        this.in_room();
     }
 
     collisionHandler (bullet, enemy) {
@@ -354,7 +358,7 @@ class Game extends Phaser.State {
                 this.player.body.velocity.x = speed;
 
         }
-        if (this.update_counter % 10 == 0) {
+        if (this.update_counter % 5 == 0) {
             if (this.cursors.up.isDown && this.cursors.right.isDown) {
                 this.player.animations.play('rightup');
                 this.player_facing = "ne";
