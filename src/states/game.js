@@ -84,13 +84,10 @@ class Game extends Phaser.State {
     //initialization code in the constructor
     constructor(game, parent) {
         super(game, parent);
-        this.platforms = undefined;
         this.player = undefined;
         this.cursors = undefined;
-        this.all_gui_obj = [];  // Add all objects except from the player in this array
         this.original_player_speed = 200;
         this.player_speed = 200;
-        this.map_movement_border = 150;
         this.player_facing = "s";
         this.player_facing_mapping = {
             "n": 5,
@@ -216,9 +213,12 @@ class Game extends Phaser.State {
         this.game.load.image('pencil', 'assets/pencil.png');
         this.game.load.spritesheet('dude', 'assets/student.png', 40, 40);
         this.game.load.spritesheet('exam', 'assets/exam.jpg');
+        this.game.load.spritesheet('door', 'assets/door.png');
         this.game.load.tilemap('map', 'assets/maze.json', null, Phaser.Tilemap.TILED_JSON);
         this.game.load.image('tiles', 'assets/tiles.png');
         this.game.load.image('tiled_school', 'assets/tiled_school.png');
+        this.game.load.image('invisibleBlock', 'assets/invisibleBlock.png');
+
     }
 
     //Setup code, method called after preload
@@ -244,6 +244,15 @@ class Game extends Phaser.State {
         //  We need to enable physics on the player
         this.game.physics.arcade.enable(this.player);
 
+
+        this.halo = this.add.sprite(0, 0, 'invisibleBlock'); //invisibleBlock is a 1x1 px transparent png
+        this.halo.anchor.setTo(0.5, 0.5);
+        this.player.addChild(this.halo);
+        this.physics.enable(this.halo, Phaser.Physics.ARCADE);
+        this.halo.body.setSize(this.player.width +10, this.player.height +10, 0, 0);
+
+
+
         this.game.camera.follow(this.player);
         //  Player physics properties. Give the little guy a slight bounce.
         this.player.body.collideWorldBounds = true;
@@ -258,7 +267,7 @@ class Game extends Phaser.State {
         this.player.animations.add('leftdown', [14, 15, 16], 10, true);
         this.player.animations.add('rightdown', [19, 20, 23], 10, true);
         this.cursors = this.game.input.keyboard.createCursorKeys();
-        this.input.keyboard.addKeyCapture([ Phaser.Keyboard.SPACEBAR ]);
+        this.input.keyboard.addKeyCapture([ Phaser.Keyboard.SPACEBAR, Phaser.Keyboard.A, Phaser.Keyboard.R ]);
 
 
         this.weapons.push(new Weapon.SingleBullet(this.game));
@@ -269,10 +278,18 @@ class Game extends Phaser.State {
         this.enemies = this.game.add.group();
         this.enemies.enableBody = true;
         this.enemies.lives = 3;
-
         this.map.createFromObjects('Others', 150, 'exam', 0, true, false, this.enemies);
-        this.game.time.advancedTiming = true;
 
+        // Doors
+        this.doors = this.game.add.group();
+        this.doors.enableBody = true;
+
+        this.map.createFromObjects('Doors', 397, 'door', 0, true, false, this.doors);
+        this.doors.children.forEach(function (element, index, array) {
+            element.body.immovable = true;
+            element.anchor.setTo(0, 0);
+        });
+        this.game.time.advancedTiming = true;
     }
 
     //Code ran on each frame of game
@@ -280,6 +297,8 @@ class Game extends Phaser.State {
         this.game.physics.arcade.collide(this.player, this.layer);
         this.game.physics.arcade.collide(this.player, this.enemies);
         this.game.physics.arcade.collide(this.enemies, this.layer);
+        this.game.physics.arcade.collide(this.enemies, this.doors);
+        this.game.physics.arcade.collide(this.player, this.doors);
 
         //  Reset the players velocity (movement)
         this.move();
@@ -294,12 +313,24 @@ class Game extends Phaser.State {
         } else {
             this.player_speed = this.original_player_speed
         }
+
         this.game.physics.arcade.overlap(this.weapons, this.enemies, this.collisionHandler, null, this);
         this.game.physics.arcade.overlap(this.weapons, this.layer, this.collisionHandlerWall, null, this);
-
         this.in_room();
+        this.game.physics.arcade.overlap(this.halo, this.doors, this.checkNear, function(){}, this);
+
+
     }
 
+    checkNear (chkObject){
+        if (this.input.keyboard.isDown(Phaser.Keyboard.A))
+        {
+            console.log(chkObject, 'is near');
+
+            chkObject.angle = 70;
+        }
+
+    }
     collisionHandler (bullet, enemy) {
 
         //  When a bullet hits an alien we kill them both
@@ -322,7 +353,6 @@ class Game extends Phaser.State {
         this.update_counter++;
         this.player.body.velocity.x = 0;
         this.player.body.velocity.y = 0;
-        var fLen = this.all_gui_obj.length;
         var diagonal_penalty = 1;
         if ((this.cursors.up.isDown || this.cursors.down.isDown) && (this.cursors.up.isDown || this.cursors.down.isDown)){
             diagonal_penalty = 1/Math.sqrt(2);
