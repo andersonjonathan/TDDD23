@@ -317,17 +317,17 @@ class Game extends Phaser.State {
         this.game.physics.arcade.overlap(this.weapons, this.enemies, this.collisionHandler, null, this);
         this.game.physics.arcade.overlap(this.weapons, this.layer, this.collisionHandlerWall, null, this);
         this.in_room();
-        this.game.physics.arcade.overlap(this.halo, this.doors, this.checkNear, function(){}, this);
+        this.game.physics.arcade.overlap(this.doors, this.halo, this.checkNear, null, this);
 
 
     }
 
-    checkNear (chkObject){
+    checkNear (halo, door){
         if (this.input.keyboard.isDown(Phaser.Keyboard.A))
         {
-            console.log(chkObject, 'is near');
-
-            chkObject.angle = 70;
+            console.log(door.position);
+            this.game.add.tween(door).to( { angle: -90 }, 1000, Phaser.Easing.Linear.None, true);
+            door.body.setSize(5,96, 0, -96)
         }
 
     }

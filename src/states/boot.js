@@ -3,7 +3,7 @@ class Boot extends Phaser.State {
   constructor() {
     super();
   }
-  
+
   preload() {
     this.load.image('preloader', 'assets/preloader.gif');
   }
@@ -26,13 +26,13 @@ class Boot extends Phaser.State {
     }
 
     this.initGlobalVariables();
-    console.log("boot");
+
     this.game.state.start('preloader');
   }
 
   initGlobalVariables(){
     this.game.global = {
-      score: 0
+
     };
   }
 
