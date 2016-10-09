@@ -84,13 +84,10 @@ class Game extends Phaser.State {
     //initialization code in the constructor
     constructor(game, parent) {
         super(game, parent);
-        this.platforms = undefined;
         this.player = undefined;
         this.cursors = undefined;
-        this.all_gui_obj = [];  // Add all objects except from the player in this array
         this.original_player_speed = 200;
         this.player_speed = 200;
-        this.map_movement_border = 150;
         this.player_facing = "s";
         this.player_facing_mapping = {
             "n": 5,
@@ -216,9 +213,15 @@ class Game extends Phaser.State {
         this.game.load.image('pencil', 'assets/pencil.png');
         this.game.load.spritesheet('dude', 'assets/student.png', 40, 40);
         this.game.load.spritesheet('exam', 'assets/exam.jpg');
+        this.game.load.spritesheet('door_3_1', 'assets/doors/door_3_1.png');
+        this.game.load.spritesheet('door_2_1', 'assets/doors/door_2_1.png');
+        this.game.load.spritesheet('door_1_3', 'assets/doors/door_1_3.png');
+        this.game.load.spritesheet('door_1_2', 'assets/doors/door_1_2.png');
         this.game.load.tilemap('map', 'assets/maze.json', null, Phaser.Tilemap.TILED_JSON);
         this.game.load.image('tiles', 'assets/tiles.png');
         this.game.load.image('tiled_school', 'assets/tiled_school.png');
+        this.game.load.image('invisibleBlock', 'assets/invisibleBlock.png');
+
     }
 
     //Setup code, method called after preload
@@ -244,6 +247,15 @@ class Game extends Phaser.State {
         //  We need to enable physics on the player
         this.game.physics.arcade.enable(this.player);
 
+
+        this.halo = this.add.sprite(0, 0, 'invisibleBlock'); //invisibleBlock is a 1x1 px transparent png
+        this.halo.anchor.setTo(0.5, 0.5);
+        this.player.addChild(this.halo);
+        this.physics.enable(this.halo, Phaser.Physics.ARCADE);
+        this.halo.body.setSize(this.player.width +10, this.player.height +10, 0, 0);
+
+
+
         this.game.camera.follow(this.player);
         //  Player physics properties. Give the little guy a slight bounce.
         this.player.body.collideWorldBounds = true;
@@ -258,7 +270,7 @@ class Game extends Phaser.State {
         this.player.animations.add('leftdown', [14, 15, 16], 10, true);
         this.player.animations.add('rightdown', [19, 20, 23], 10, true);
         this.cursors = this.game.input.keyboard.createCursorKeys();
-        this.input.keyboard.addKeyCapture([ Phaser.Keyboard.SPACEBAR ]);
+        this.input.keyboard.addKeyCapture([ Phaser.Keyboard.SPACEBAR, Phaser.Keyboard.A, Phaser.Keyboard.R ]);
 
 
         this.weapons.push(new Weapon.SingleBullet(this.game));
@@ -269,10 +281,56 @@ class Game extends Phaser.State {
         this.enemies = this.game.add.group();
         this.enemies.enableBody = true;
         this.enemies.lives = 3;
-
         this.map.createFromObjects('Others', 150, 'exam', 0, true, false, this.enemies);
-        this.game.time.advancedTiming = true;
 
+        // Doors
+        // Small doors open down
+        this.doors = this.game.add.group();
+        this.doors.enableBody = true;
+        var door_data = [
+            {'tile': 402, 'sprite': 'door_2_1', 'open':'down', 'size': {'x':64, 'y':5}, 'hinge': 'right', 'pivot_x': 64, 'pivot_y': 0},
+            {'tile': 404, 'sprite': 'door_2_1', 'open':'down', 'size': {'x':64, 'y':5}, 'hinge': 'left', 'pivot_x': 0, 'pivot_y': 0},
+            {'tile': 401, 'sprite': 'door_2_1', 'open':'up', 'size': {'x':64, 'y':5}, 'hinge': 'right', 'pivot_x': 64, 'pivot_y': 0},
+            {'tile': 403, 'sprite': 'door_2_1', 'open':'up', 'size': {'x':64, 'y':5}, 'hinge': 'left', 'pivot_x': 0, 'pivot_y': 0},
+
+            {'tile': 398, 'sprite': 'door_3_1', 'open':'down', 'size': {'x':96, 'y':5}, 'hinge': 'right', 'pivot_x': 96, 'pivot_y': 0},
+            {'tile': 400, 'sprite': 'door_3_1', 'open':'down', 'size': {'x':96, 'y':5}, 'hinge': 'left', 'pivot_x': 0, 'pivot_y': 0},
+            {'tile': 397, 'sprite': 'door_3_1', 'open':'up', 'size': {'x':96, 'y':5}, 'hinge': 'right', 'pivot_x': 96, 'pivot_y': 0},
+            {'tile': 399, 'sprite': 'door_3_1', 'open':'up', 'size': {'x':96, 'y':5}, 'hinge': 'left', 'pivot_x': 0, 'pivot_y': 0},
+
+            {'tile': 405, 'sprite': 'door_1_2', 'open':'right', 'size': {'x':5, 'y':64}, 'hinge': 'up', 'pivot_x': 0, 'pivot_y': 0},
+            {'tile': 407, 'sprite': 'door_1_2', 'open':'left', 'size': {'x':5, 'y':64}, 'hinge': 'up', 'pivot_x': 0, 'pivot_y': 0},
+            {'tile': 406, 'sprite': 'door_1_2', 'open':'right', 'size': {'x':5, 'y':64}, 'hinge': 'down', 'pivot_x': 0, 'pivot_y': 64},
+            {'tile': 408, 'sprite': 'door_1_2', 'open':'left', 'size': {'x':5, 'y':64}, 'hinge': 'down', 'pivot_x': 0, 'pivot_y': 64},
+
+            {'tile': 409, 'sprite': 'door_1_3', 'open':'right', 'size': {'x':5, 'y':96}, 'hinge': 'up', 'pivot_x': 0, 'pivot_y': 0},
+            {'tile': 411, 'sprite': 'door_1_3', 'open':'left', 'size': {'x':5, 'y':96}, 'hinge': 'up', 'pivot_x': 0, 'pivot_y': 0},
+            {'tile': 410, 'sprite': 'door_1_3', 'open':'right', 'size': {'x':5, 'y':96}, 'hinge': 'down', 'pivot_x': 0, 'pivot_y': 96},
+            {'tile': 412, 'sprite': 'door_1_3', 'open':'left', 'size': {'x':5, 'y':96}, 'hinge': 'down', 'pivot_x': 0, 'pivot_y': 96},
+
+        ];
+        for (let door of door_data){
+            this.map.createFromObjects('Doors', door.tile, door.sprite, 0, true, false, this.doors);
+            this.doors.children.forEach(function (element, index, array) {
+                element.body.immovable = true;
+                element.anchor.setTo(0, 0);
+                if (!element.data.hasOwnProperty('open')) {
+                    element.data['open'] = door.open;
+                }
+                if (!element.data.hasOwnProperty('size')) {
+                    element.data['size'] = door.size;
+                }
+                if (!element.data.hasOwnProperty('hinge')) {
+                    element.data['hinge'] = door.hinge;
+                    element.pivot.x = door.pivot_x;
+                    element.x += door.pivot_x;
+                    element.pivot.y = door.pivot_y;
+                    element.y += door.pivot_y;
+                }
+            });
+        }
+
+        this.game.time.advancedTiming = true;
     }
 
     //Code ran on each frame of game
@@ -280,6 +338,7 @@ class Game extends Phaser.State {
         this.game.physics.arcade.collide(this.player, this.layer);
         this.game.physics.arcade.collide(this.player, this.enemies);
         this.game.physics.arcade.collide(this.enemies, this.layer);
+        this.game.physics.arcade.collide(this.player, this.doors);
 
         //  Reset the players velocity (movement)
         this.move();
@@ -294,12 +353,37 @@ class Game extends Phaser.State {
         } else {
             this.player_speed = this.original_player_speed
         }
+
         this.game.physics.arcade.overlap(this.weapons, this.enemies, this.collisionHandler, null, this);
         this.game.physics.arcade.overlap(this.weapons, this.layer, this.collisionHandlerWall, null, this);
-
         this.in_room();
+        this.game.physics.arcade.overlap(this.doors, this.halo, this.openDoor, null, this);
+
+
     }
 
+    openDoor(halo, door){
+        if (this.input.keyboard.isDown(Phaser.Keyboard.A))
+        {
+            var angle = 90;
+            var xsign = 0;
+            var ysign = 0;
+
+            if ((door.data['hinge'] == "right" && door.data['open'] == "down")||(door.data['hinge'] == "left" && door.data['open'] == "up")){
+                angle = angle * -1;
+                ysign = -1
+            }
+
+            if ((door.data['hinge'] == "up" && door.data['open'] == "right")||(door.data['hinge'] == "down" && door.data['open'] == "left")){
+                angle = angle * -1;
+            } else if ((door.data['hinge'] == "up" && door.data['open'] == "left")||(door.data['hinge'] == "down" && door.data['open'] == "right")){
+                xsign = -1;
+            }
+            this.game.add.tween(door).to( { angle: angle }, 1000, Phaser.Easing.Linear.None, true);
+            door.body.setSize(door.data.size.y, door.data.size.x, door.data.size.y*xsign, door.data.size.x*ysign)
+        }
+
+    }
     collisionHandler (bullet, enemy) {
 
         //  When a bullet hits an alien we kill them both
@@ -322,7 +406,6 @@ class Game extends Phaser.State {
         this.update_counter++;
         this.player.body.velocity.x = 0;
         this.player.body.velocity.y = 0;
-        var fLen = this.all_gui_obj.length;
         var diagonal_penalty = 1;
         if ((this.cursors.up.isDown || this.cursors.down.isDown) && (this.cursors.up.isDown || this.cursors.down.isDown)){
             diagonal_penalty = 1/Math.sqrt(2);

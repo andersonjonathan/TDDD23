@@ -49,7 +49,6 @@ http://renderhjs.net/shoebox/
 Tiled
 
 #TODO
-* Springa
 * Liv
 * Baljan (Butik, köpa mer liv, kaffe som vapen)
 * Dörrar
