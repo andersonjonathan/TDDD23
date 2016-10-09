@@ -330,11 +330,31 @@ class Game extends Phaser.State {
             });
         }
 
+        var p_key = this.input.keyboard.addKey(Phaser.Keyboard.P);
+        p_key.onDown.add(this.togglePause, this);
+
         this.game.time.advancedTiming = true;
+
+        // this.text_group = this.game.add.group();
+        // this.text_group.add(this.game.add.text(400, 300, "- You have clicked -\n0 times !", {
+        //     font: "65px Arial",
+        //     fill: "#ff0044",
+        //     align: "center"
+        // }));
+        // this.text_group.fixedToCamera = true;
+        // console.log(this.text_group);
     }
+
+
+    togglePause() {
+        this.player.animations.stop();
+        this.game.physics.arcade.isPaused = (!this.game.physics.arcade.isPaused);
+    }
+
 
     //Code ran on each frame of game
     update() {
+        if (this.game.physics.arcade.isPaused){ return }
         this.game.physics.arcade.collide(this.player, this.layer);
         this.game.physics.arcade.collide(this.player, this.enemies);
         this.game.physics.arcade.collide(this.enemies, this.layer);
@@ -381,9 +401,37 @@ class Game extends Phaser.State {
             }
             this.game.add.tween(door).to( { angle: angle }, 1000, Phaser.Easing.Linear.None, true);
             door.body.setSize(door.data.size.y, door.data.size.x, door.data.size.y*xsign, door.data.size.x*ysign)
+            var room = this.doorToRoom(door)
         }
 
     }
+
+    doorToRoom(door){
+        var x = door.position.x/32;
+        var y = door.position.y/32;
+        var potential_rooms = [
+            this.xy_in_room(x, y),
+            this.xy_in_room(x+2, y),
+            this.xy_in_room(x-2, y),
+            this.xy_in_room(x, y+2),
+            this.xy_in_room(x, y-2)
+        ];
+        var room = null;
+        for (var i = 0; i < potential_rooms.length; i++) {
+            if (potential_rooms[i] !== null){
+                room = potential_rooms[i];
+                break;
+            }
+        }
+        if (room != null){
+            console.log("Open door to " + this.rooms[room].name)
+        } else {
+            console.log("Open generic door")
+        }
+
+        return this.rooms[room]
+    }
+
     collisionHandler (bullet, enemy) {
 
         //  When a bullet hits an alien we kill them both
@@ -480,19 +528,21 @@ class Game extends Phaser.State {
         var x = Math.round(this.player.position.x / 32);
         var y = Math.round(this.player.position.y / 32);
         if (this.last_room == null){
-            for (var i = 0; i < this.rooms.length; i++) {
-                if (this.rooms[i].x0 <= x && x <= this.rooms[i].x1 && this.rooms[i].y0 <= y && y <= this.rooms[i].y1){
-                    this.last_room = this.rooms[i].id;
-                    break;
-                }
-            }
+            this.last_room = this.xy_in_room(x, y)
         } else {
             if (!(this.rooms[this.last_room].x0 <= x && x <= this.rooms[this.last_room].x1 && this.rooms[this.last_room].y0 <= y && y <= this.rooms[this.last_room].y1)){
                 this.last_room = null;
             }
         }
     }
-
+    xy_in_room(x, y){
+        for (var i = 0; i < this.rooms.length; i++) {
+            if (this.rooms[i].x0 <= x && x <= this.rooms[i].x1 && this.rooms[i].y0 <= y && y <= this.rooms[i].y1){
+                return this.rooms[i].id;
+            }
+        }
+        return null;
+    }
 
 
     //Called when game is paused
