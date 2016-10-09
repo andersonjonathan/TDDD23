@@ -202,7 +202,19 @@ class Game extends Phaser.State {
             {id: 81, x0: 207, y0: 68, x1: 270, y1: 104, name: "Innergård"},
         ];
         this.last_room = null;
-
+        var circle = Math.PI*2;
+        this.shadow_mapping = {
+            "ne": [0, circle*0.75],
+            "e": [circle*0.125, circle*0.875],
+            "se": [circle*0.25, 0],
+            "s": [circle*0.375, circle*0.125],
+            "sw": [circle*0.5, circle*0.25],
+            "w": [circle*0.625, circle*0.375],
+            "nw": [circle*0.75, circle*0.5],
+            "n": [circle*0.875, circle*0.625]
+        };
+        this.night = true;
+        this.release_N = true;
     }
 
     //Load operations (uses Loader), method called first
@@ -221,7 +233,6 @@ class Game extends Phaser.State {
         this.game.load.image('tiles', 'assets/tiles.png');
         this.game.load.image('tiled_school', 'assets/tiled_school.png');
         this.game.load.image('invisibleBlock', 'assets/invisibleBlock.png');
-
     }
 
     //Setup code, method called after preload
@@ -242,8 +253,8 @@ class Game extends Phaser.State {
             this.map.setCollision(colliders[i], true, this.layer);
         }
 
-        this.player = this.game.add.sprite(1870, 8076, 'dude');
-
+        this.player = this.game.add.sprite(1886, 8090, 'dude');
+        this.player.anchor.setTo(0.5, 0.5);
         //  We need to enable physics on the player
         this.game.physics.arcade.enable(this.player);
 
@@ -252,7 +263,7 @@ class Game extends Phaser.State {
         this.halo.anchor.setTo(0.5, 0.5);
         this.player.addChild(this.halo);
         this.physics.enable(this.halo, Phaser.Physics.ARCADE);
-        this.halo.body.setSize(this.player.width +10, this.player.height +10, 0, 0);
+        this.halo.body.setSize(this.player.width +10, this.player.height +10, -20, -20);
 
 
 
@@ -270,7 +281,12 @@ class Game extends Phaser.State {
         this.player.animations.add('leftdown', [14, 15, 16], 10, true);
         this.player.animations.add('rightdown', [19, 20, 23], 10, true);
         this.cursors = this.game.input.keyboard.createCursorKeys();
-        this.input.keyboard.addKeyCapture([ Phaser.Keyboard.SPACEBAR, Phaser.Keyboard.A, Phaser.Keyboard.R ]);
+        this.input.keyboard.addKeyCapture([
+            Phaser.Keyboard.SPACEBAR,
+            Phaser.Keyboard.A,
+            Phaser.Keyboard.R,
+            Phaser.Keyboard.N
+        ]);
 
 
         this.weapons.push(new Weapon.SingleBullet(this.game));
@@ -343,6 +359,18 @@ class Game extends Phaser.State {
         // }));
         // this.text_group.fixedToCamera = true;
         // console.log(this.text_group);
+        //this.shadow_overlay = this.game.add.sprite(0, 0, 'invisibleBlock');
+        this.game.stage.backgroundColor = 0x4488cc;
+        this.shadowTexture = this.game.add.bitmapData(this.game.width, this.game.height);
+        //this.shadow_overlay.fixedToCamera = true;
+        //this.shadow_overlay.addChild(this.shadowTexture);
+        // Create an object that will use the bitmap as a texture
+        var lightSprite = this.game.add.image(0, 0, this.shadowTexture);
+        lightSprite.fixedToCamera = true;
+        // Set the blend mode to MULTIPLY. This will darken the colors of
+        // everything below this sprite.
+        lightSprite.blendMode = Phaser.blendModes.MULTIPLY;
+
     }
 
 
@@ -380,8 +408,50 @@ class Game extends Phaser.State {
         this.game.physics.arcade.overlap(this.doors, this.halo, this.openDoor, null, this);
 
 
-    }
+        if (this.input.keyboard.isDown(Phaser.Keyboard.N))
+        {
+            if (this.release_N) {
+                console.log(this.night);
+                this.night = this.night ? false : true;
+                this.release_N = false;
+            }
+        } else {
+            this.release_N = true
+        }
+        this.updateShadowTexture();
 
+    }
+    updateShadowTexture() {
+        if (!this.night){
+            this.shadowTexture.context.fillStyle = 'rgb(255, 255, 255)';
+            this.shadowTexture.context.fillRect(0, 0, this.game.world.width, this.game.world.height);
+            this.shadowTexture.dirty = true;
+            return
+        }
+        // This function updates the shadow texture (this.shadowTexture).
+        // First, it fills the entire texture with a dark shadow color.
+        // Then it draws a white circle centered on the pointer position.
+        // Because the texture is drawn to the screen using the MULTIPLY
+        // blend mode, the dark areas of the texture make all of the colors
+        // underneath it darker, while the white area is unaffected.
+
+        // Draw shadow
+        this.shadowTexture.context.fillStyle = 'rgb(25, 25, 25)';
+        this.shadowTexture.context.fillRect(0, 0, this.game.world.width, this.game.world.height);
+
+        // Draw circle of light
+        this.shadowTexture.context.beginPath();
+        this.shadowTexture.context.fillStyle = 'rgb(255, 255, 255)';
+
+        this.shadowTexture.context.arc(400, 300, 250,
+            this.shadow_mapping[this.player_facing][0], this.shadow_mapping[this.player_facing][1], true);
+        this.shadowTexture.context.lineTo(400, 300);
+        this.shadowTexture.context.closePath();
+        this.shadowTexture.context.fill();
+
+        // This just tells the engine it should update the texture cache
+        this.shadowTexture.dirty = true;
+    };
     openDoor(halo, door){
         if (this.input.keyboard.isDown(Phaser.Keyboard.A))
         {

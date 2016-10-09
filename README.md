@@ -51,7 +51,6 @@ Tiled
 #TODO
 * Liv
 * Baljan (Butik, köpa mer liv, kaffe som vapen)
-* Dörrar
 * Fiender (Skjuter mot dig, går mot dig)
 * Tenta 5 frågor
 * Klassrums inredning
