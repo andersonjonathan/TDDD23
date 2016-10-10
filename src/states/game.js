@@ -215,6 +215,7 @@ class Game extends Phaser.State {
         };
         this.night = true;
         this.release_N = true;
+        this.release_A = true;
     }
 
     //Load operations (uses Loader), method called first
@@ -263,7 +264,7 @@ class Game extends Phaser.State {
         this.halo.anchor.setTo(0.5, 0.5);
         this.player.addChild(this.halo);
         this.physics.enable(this.halo, Phaser.Physics.ARCADE);
-        this.halo.body.setSize(this.player.width +10, this.player.height +10, -20, -20);
+        this.halo.body.setSize(this.player.width +64, this.player.height +64, -52, -52);
 
 
 
@@ -387,6 +388,7 @@ class Game extends Phaser.State {
         this.game.physics.arcade.collide(this.player, this.enemies);
         this.game.physics.arcade.collide(this.enemies, this.layer);
         this.game.physics.arcade.collide(this.player, this.doors);
+        this.game.physics.arcade.collide(this.enemies, this.doors);
 
         //  Reset the players velocity (movement)
         this.move();
@@ -404,19 +406,20 @@ class Game extends Phaser.State {
 
         this.game.physics.arcade.overlap(this.weapons, this.enemies, this.collisionHandler, null, this);
         this.game.physics.arcade.overlap(this.weapons, this.layer, this.collisionHandlerWall, null, this);
+        this.game.physics.arcade.overlap(this.weapons, this.doors, this.collisionHandlerDoor, null, this);
         this.in_room();
-        this.game.physics.arcade.overlap(this.doors, this.halo, this.openDoor, null, this);
+        this.game.physics.arcade.overlap(this.doors, this.halo, this.toggleDoor, null, this);
 
 
         if (this.input.keyboard.isDown(Phaser.Keyboard.N))
         {
             if (this.release_N) {
-                console.log(this.night);
+
                 this.night = this.night ? false : true;
                 this.release_N = false;
             }
         } else {
-            this.release_N = true
+            this.release_N = true;
         }
         this.updateShadowTexture();
 
@@ -452,28 +455,72 @@ class Game extends Phaser.State {
         // This just tells the engine it should update the texture cache
         this.shadowTexture.dirty = true;
     };
-    openDoor(halo, door){
-        if (this.input.keyboard.isDown(Phaser.Keyboard.A))
-        {
-            var angle = 90;
-            var xsign = 0;
-            var ysign = 0;
 
-            if ((door.data['hinge'] == "right" && door.data['open'] == "down")||(door.data['hinge'] == "left" && door.data['open'] == "up")){
-                angle = angle * -1;
-                ysign = -1
-            }
+    openDoor(door){
+        var angle = 90;
+        var xsign = 0;
+        var ysign = 0;
 
-            if ((door.data['hinge'] == "up" && door.data['open'] == "right")||(door.data['hinge'] == "down" && door.data['open'] == "left")){
-                angle = angle * -1;
-            } else if ((door.data['hinge'] == "up" && door.data['open'] == "left")||(door.data['hinge'] == "down" && door.data['open'] == "right")){
-                xsign = -1;
-            }
-            this.game.add.tween(door).to( { angle: angle }, 1000, Phaser.Easing.Linear.None, true);
-            door.body.setSize(door.data.size.y, door.data.size.x, door.data.size.y*xsign, door.data.size.x*ysign)
-            var room = this.doorToRoom(door)
+        if ((door.data['hinge'] == "right" && door.data['open'] == "down")||(door.data['hinge'] == "left" && door.data['open'] == "up")){
+            angle = angle * -1;
+            ysign = -1
         }
 
+        if ((door.data['hinge'] == "up" && door.data['open'] == "right")||(door.data['hinge'] == "down" && door.data['open'] == "left")){
+            angle = angle * -1;
+        } else if ((door.data['hinge'] == "up" && door.data['open'] == "left")||(door.data['hinge'] == "down" && door.data['open'] == "right")){
+            xsign = -1;
+        }
+        this.game.add.tween(door).to( { angle: angle }, 1000, Phaser.Easing.Linear.None, true);
+        door.body.setSize(door.data.size.y, door.data.size.x, door.data.size.y*xsign, door.data.size.x*ysign);
+
+    }
+
+    closeDoor(door){
+        this.game.add.tween(door).to({angle: 0}, 1000, Phaser.Easing.Linear.None, true);
+        door.body.setSize(door.data.size.x, door.data.size.y, 0, 0);
+    }
+
+    toggleDoor(halo, door){
+        if (this.input.keyboard.isDown(Phaser.Keyboard.A))
+        {
+            if (door.angle == 0){
+                this.openDoor(door)
+            } else {
+                if (this.release_A) {
+                    // Close the door
+                    this.closeDoor(door)
+                }
+            }
+            var room = this.doorToRoom(door);
+            this.release_A = false;
+        } else {
+            this.release_A = true
+        }
+
+    }
+
+    getDoorsToRoom(room){
+        // Example usage
+        // var doors = this.getDoorsToRoom(3);
+        // for (var i = 0; i < doors.length; i++) {
+        //     if (this.night)
+        //         this.openDoor(doors[i]);
+        //     else
+        //         this.closeDoor(doors[i]);
+        // }
+
+        var room_obj = this.rooms[room];
+        var doors = [];
+
+        this.doors.children.forEach(function (element, index, array) {
+            var x = element.position.x/32;
+            var y = element.position.y/32;
+            if (room_obj.x0-2 <= x && x <= room_obj.x1+2 && room_obj.y0-2 <= y && y <= room_obj.y1+2){
+                doors.push(element);
+            }
+        });
+        return doors;
     }
 
     doorToRoom(door){
@@ -494,12 +541,12 @@ class Game extends Phaser.State {
             }
         }
         if (room != null){
-            console.log("Open door to " + this.rooms[room].name)
+            console.log("Open door to " + room + this.rooms[room].name)
         } else {
             console.log("Open generic door")
         }
 
-        return this.rooms[room]
+        return room
     }
 
     collisionHandler (bullet, enemy) {
@@ -511,12 +558,15 @@ class Game extends Phaser.State {
 
     }
     collisionHandlerWall (bullet, wall) {
-
         //  When a bullet hits an alien we kill them both
         if (this.solid_tiles.includes(wall.index)){
             bullet.kill();
         }
+    }
 
+    collisionHandlerDoor (bullet, door) {
+        //  When a bullet hits an alien we kill them both
+        bullet.kill();
 
     }
 
