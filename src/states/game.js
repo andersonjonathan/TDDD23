@@ -3,12 +3,14 @@ import Weapon from '../prefabs/weapon';
 import Doors from '../prefabs/doors';
 import Player from '../prefabs/player';
 import Rooms from '../prefabs/rooms';
+import Enemies from '../prefabs/enemies';
 
 
 class Game extends Phaser.State {
 
     constructor(game, parent) {
         super(game, parent);
+        
         this.killRate = 2000;
         this.nextDeath = 0;
         this.player = undefined;
@@ -20,7 +22,6 @@ class Game extends Phaser.State {
         this.map = undefined;
         this.layer = undefined;
         this.solid_tiles = [17, 45];
-        //this.rooms = new Rooms();
 
         var circle = Math.PI*2;
         this.shadow_mapping = {
@@ -63,9 +64,12 @@ class Game extends Phaser.State {
 
     //Setup code, method called after preload
     create() {
-        //  We're going to be using physics, so enable the Ninja
+        //  We're going to be using physics, so enable the Arcade
         this.game.physics.startSystem(Phaser.Physics.Arcade);
+        
+        // Create the world/map
         this.game.world.setBounds(0, 0, 10880, 8640);
+        
         this.map = this.add.tilemap('map');
 
         this.map.addTilesetImage('tiles', 'tiles');
@@ -73,59 +77,45 @@ class Game extends Phaser.State {
 
         this.layer = this.map.createLayer('Tile Layer 1');
 
-        var colliders = [17, 45];
-        for (var i = 0; i < colliders.length; i++)
+        for (var i = 0; i < this.solid_tiles.length; i++)
         {
-            this.map.setCollision(colliders[i], true, this.layer);
+            this.map.setCollision(this.solid_tiles[i], true, this.layer);
         }
 
-        var player = new Player(this.game, 1886, 8090, this.input); //
-        this.player = this.game.add.existing(player); //sprite(1886, 8090, 'dude');
+        // Add the player
+        this.player = this.game.add.existing(new Player(this.game, 1886, 8090, this.input));
         
-        this.player.body.bounce.set(0.8);
+        this.player.body.bounce.set(0.8);  // Can't set this in the player file for some retarded reason.
         
         this.game.camera.follow(this.player);
   
-        
+        // Add some keyboard listeners
         this.input.keyboard.addKeyCapture([
             Phaser.Keyboard.SPACEBAR,
             Phaser.Keyboard.A,
             Phaser.Keyboard.R,
             Phaser.Keyboard.N,
-            Phaser.Keyboard.PAGE_DOWN, // only for debuging
+            Phaser.Keyboard.PAGE_DOWN // only for debugging
         ]);
         
+        // Add listener to the p button for pausing
+        var p_key = this.input.keyboard.addKey(Phaser.Keyboard.P);
+        p_key.onDown.add(this.togglePause, this);
+        
+        // Add some weapons
         this.weapons.push(new Weapon.SingleBullet(this.game));
         this.currentWeapon = 0;
 
-
-        //Lets create some baddies
-        this.enemies = this.game.add.group();
-        this.enemies.enableBody = true;
-        this.map.createFromObjects('Others', 150, 'dude2', 4, true, false, this.enemies);
-        this.enemies.children.forEach(function (element, inedex, array){
-            element.data['velocityX'] = 100;
-            element.data['life'] = 3;
-
-            element.body.velocity.x = 100;
-            element.body.bounce.x = 0.7 + Math.random() * 0.2;
-            element.body.bounce.y = 1;
-        });
-
-
-        this.enemies.callAll('animations.add', 'animations', 'left', [0, 1, 2, 3], 2, true);
-        this.enemies.callAll('animations.add', 'animations', 'right', [5, 6, 7, 8], 7, true);
-        this.enemies.callAll('animations.play', 'animations', 'right');
-
+        // Enemies
+        this.enemies = new Enemies(this.game, this.map);
 
         // Doors
         this.doors = new Doors(this.game, this.map);
-        
-        var p_key = this.input.keyboard.addKey(Phaser.Keyboard.P);
-        p_key.onDown.add(this.togglePause, this);
 
+        // Who wants basic timing...
         this.game.time.advancedTiming = true;
-
+        
+        // start for helptext texts:
         // this.text_group = this.game.add.group();
         // this.text_group.add(this.game.add.text(400, 300, "- You have clicked -\n0 times !", {
         //     font: "65px Arial",
@@ -134,6 +124,8 @@ class Game extends Phaser.State {
         // }));
         // this.text_group.fixedToCamera = true;
         // console.log(this.text_group);
+        
+        // Night Mode settings:
         //this.shadow_overlay = this.game.add.sprite(0, 0, 'invisibleBlock');
         this.game.stage.backgroundColor = 0x4488cc;
         this.shadowTexture = this.game.add.bitmapData(this.game.width, this.game.height);
@@ -150,40 +142,39 @@ class Game extends Phaser.State {
 
 
     togglePause() {
+        // Toggle pause on/off
         this.player.animations.stop();
         this.game.physics.arcade.isPaused = (!this.game.physics.arcade.isPaused);
+        if (this.game.physics.arcade.isPaused){
+            console.log("PAAAAUSE!");
+        } else {
+            console.log("RESUME!!!");
+        }
     }
 
 
     //Code ran on each frame of game
     update() {
-        if (this.game.physics.arcade.isPaused){ return }
+        if (this.game.physics.arcade.isPaused){ return }  // skip this if we have paused
+        
+        // Check collisions
         this.game.physics.arcade.collide(this.player, this.layer);
         this.game.physics.arcade.collide(this.player, this.enemies, this.collisionHandlerPlayerEnemies, null, this);
         this.game.physics.arcade.collide(this.enemies, this.layer, this.collisionHandlerEnemies, null, this);
         this.game.physics.arcade.collide(this.player, this.doors);
         this.game.physics.arcade.collide(this.enemies, this.doors);
 
-        //  Reset the players velocity (movement)
-        
-
-        if (this.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR))
-        {
-            this.weapons[this.currentWeapon].fire(this.player, this);
-        }
-        
-        if (this.input.keyboard.isDown(Phaser.Keyboard.PAGE_DOWN)){
-            console.log(Rooms.rooms[5].get_enemies(this.enemies))
-        }
-
         this.game.physics.arcade.overlap(this.weapons, this.enemies, this.collisionHandler, null, this);
         this.game.physics.arcade.overlap(this.weapons, this.layer, this.collisionHandlerWall, null, this);
         this.game.physics.arcade.overlap(this.weapons, this.doors, this.collisionHandlerDoor, null, this);
         this.game.physics.arcade.overlap(this.doors, this.player.halo, this.toggleDoor, null, this);
+        
+        // Some keyboard action
+        if (this.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
+            this.weapons[this.currentWeapon].fire(this.player, this);
+        }
 
-
-        if (this.input.keyboard.isDown(Phaser.Keyboard.N))
-        {
+        if (this.input.keyboard.isDown(Phaser.Keyboard.N)) {
             if (this.release_N) {
 
                 this.night = this.night ? false : true;
@@ -192,6 +183,12 @@ class Game extends Phaser.State {
         } else {
             this.release_N = true;
         }
+
+        if (this.input.keyboard.isDown(Phaser.Keyboard.PAGE_DOWN)) {
+            console.log(Rooms.rooms[5].get_enemies(this.enemies))
+        }
+        
+        // Update night mode
         this.updateShadowTexture();
         
     }
@@ -220,8 +217,14 @@ class Game extends Phaser.State {
         this.shadowTexture.context.beginPath();
         this.shadowTexture.context.fillStyle = 'rgb(255, 255, 255)';
 
-        this.shadowTexture.context.arc(400, 300, 250,
-            this.shadow_mapping[this.player.data.facing][0], this.shadow_mapping[this.player.data.facing][1], true);
+        this.shadowTexture.context.arc(
+            400, 
+            300, 
+            250, 
+            this.shadow_mapping[this.player.data.facing][0], 
+            this.shadow_mapping[this.player.data.facing][1], 
+            true
+        );
         this.shadowTexture.context.lineTo(400, 300);
         this.shadowTexture.context.closePath();
         this.shadowTexture.context.fill();
@@ -231,6 +234,7 @@ class Game extends Phaser.State {
     };
 
     toggleDoor(halo, door){
+        // Open or close the door.
         if (this.input.keyboard.isDown(Phaser.Keyboard.A))
         {
             if (door.angle == 0){
@@ -241,7 +245,7 @@ class Game extends Phaser.State {
                     door.close();
                 }
             }
-            console.log(door.data.room);
+            //console.log(door.data.room);
             this.release_A = false;
         } else {
             this.release_A = true
@@ -250,7 +254,6 @@ class Game extends Phaser.State {
     
 
     collisionHandler (bullet, enemy) {
-
         //  When a bullet hits an alien we kill them both
         bullet.kill();
         console.log(enemy.data['life']);
@@ -264,20 +267,19 @@ class Game extends Phaser.State {
 
     }
     collisionHandlerWall (bullet, wall) {
-
+        // kill bullets that hits the wall
         if (this.solid_tiles.includes(wall.index)){
             bullet.kill();
         }
     }
 
     collisionHandlerDoor (bullet, door) {
-
+        // kill bullets that hits a door
         bullet.kill();
-
     }
 
     collisionHandlerEnemies (enemy, wall) {
-
+        // Make the enemies change direction when hitting a wall
         if(enemy.data['velocityX'] > 0){
             enemy.body.velocity.x = -200;
             enemy.animations.play('left');
@@ -291,7 +293,7 @@ class Game extends Phaser.State {
     }
 
     collisionHandlerPlayerEnemies (player, enemy){
-
+        // When the player runs in to an enemy.
         if (this.game.time.time < this.nextDeath) { return; }
 
         if (this.player.data['life'] <= 1){
