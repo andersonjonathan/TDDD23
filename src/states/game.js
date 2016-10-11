@@ -290,7 +290,8 @@ class Game extends Phaser.State {
             Phaser.Keyboard.SPACEBAR,
             Phaser.Keyboard.A,
             Phaser.Keyboard.R,
-            Phaser.Keyboard.N
+            Phaser.Keyboard.N,
+            Phaser.Keyboard.PAGE_DOWN, // only for debuging
         ]);
 
 
@@ -315,7 +316,6 @@ class Game extends Phaser.State {
         this.enemies.callAll('animations.add', 'animations', 'left', [0, 1, 2, 3], 2, true);
         this.enemies.callAll('animations.add', 'animations', 'right', [5, 6, 7, 8], 7, true);
         this.enemies.callAll('animations.play', 'animations', 'right');
-
 
 
         // Doors
@@ -421,6 +421,9 @@ class Game extends Phaser.State {
         } else {
             this.player_speed = this.original_player_speed
         }
+        if (this.input.keyboard.isDown(Phaser.Keyboard.PAGE_DOWN)){
+            console.log(this.get_enemies_in_room(5))
+        }
 
         this.game.physics.arcade.overlap(this.weapons, this.enemies, this.collisionHandler, null, this);
         this.game.physics.arcade.overlap(this.weapons, this.layer, this.collisionHandlerWall, null, this);
@@ -444,6 +447,9 @@ class Game extends Phaser.State {
 
 
     }
+
+
+
     updateShadowTexture() {
         if (!this.night){
             this.shadowTexture.context.fillStyle = 'rgb(255, 255, 255)';
@@ -499,6 +505,19 @@ class Game extends Phaser.State {
     closeDoor(door){
         this.game.add.tween(door).to({angle: 0}, 1000, Phaser.Easing.Linear.None, true);
         door.body.setSize(door.data.size.x, door.data.size.y, 0, 0);
+    }
+
+    get_enemies_in_room(room){
+        var tmp = [];
+        var room_obj = this.rooms[room];
+        this.enemies.children.forEach(function (element, index, array) {
+            var x = element.position.x/32;
+            var y = element.position.y/32;
+            if (room_obj.x0 <= x && x <= room_obj.x1 && room_obj.y0 <= y && y <= room_obj.y1 && element.data['life']>0){
+                tmp.push(element);
+            }
+        });
+        return tmp;
     }
 
     toggleDoor(halo, door){

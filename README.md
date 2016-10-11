@@ -57,4 +57,9 @@ Tiled
 * Karta
 * Pause meny
 * Hjälp/kontroller
-* 
+* game over vy
+* Slumpa walking patterns
+* blinka med spelaren
+* Knuffa in spelaren i rummet när han öppnar dörren.
+* Branddörrar för att låsa delar av huset
+* Hitta saker på toa.
