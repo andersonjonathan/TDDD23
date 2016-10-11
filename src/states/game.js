@@ -398,7 +398,7 @@ class Game extends Phaser.State {
     update() {
         if (this.game.physics.arcade.isPaused){ return }
         this.game.physics.arcade.collide(this.player, this.layer);
-        this.game.physics.arcade.collide(this.player, this.enemies);
+        this.game.physics.arcade.collide(this.player, this.enemies, this.collisionHandlerPlayerEnemies, null, this);
         this.game.physics.arcade.collide(this.enemies, this.layer, this.collisionHandlerEnemies, null, this);
         this.game.physics.arcade.collide(this.player, this.doors);
         this.game.physics.arcade.collide(this.enemies, this.doors);
@@ -568,11 +568,11 @@ class Game extends Phaser.State {
 
         //  When a bullet hits an alien we kill them both
         bullet.kill();
-        console.log(this.enemies.lives);
-        if(this.enemies.lives <= 1){
+        console.log(enemy.data['life']);
+        if(enemy.data['life'] <= 1){
             enemy.kill();
         } else {
-            this.enemies.lives = this.enemies.lives - 1;
+            enemy.data['life'] = enemy.data['life'] - 1;
         }
 
 
@@ -602,10 +602,11 @@ class Game extends Phaser.State {
             enemy.data['velocityX'] = 100;
         }
 
+    }
 
-        //this.enemies.callAll('animations.play', 'animations', 'left', true);
-        //enemy.body.velocity.y = 100;
-
+    collisionHandlerPlayerEnemies (player, enemy){
+        player.kill();
+        this.game.physics.arcade.isPaused = (!this.game.physics.arcade.isPaused);
     }
 
     move(){
