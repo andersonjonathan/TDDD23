@@ -1,38 +1,7 @@
 //Documentation for Phaser's (2.5.0) states:: phaser.io/docs/2.5.0/Phaser.State.html
-import Pencil from '../prefabs/pencil';
+import Weapon from '../prefabs/weapon';
 
-var Weapon = {};
-
-
-Weapon.SingleBullet = function (game) {
-
-    Phaser.Group.call(this, game, game.world, 'Single Bullet', false, true, Phaser.Physics.ARCADE);
-
-    this.nextFire = 0;
-    this.bulletSpeed = 500;
-    this.fireRate = 300;
-    for (var i = 0; i < 64; i++)
-    {
-        this.add(new Pencil(game, 'pencil'), true);
-    }
-    return this;
-
-};
-
-Weapon.SingleBullet.prototype = Object.create(Phaser.Group.prototype);
-Weapon.SingleBullet.prototype.constructor = Weapon.SingleBullet;
-Weapon.SingleBullet.prototype.fire = function (source, game) {
-
-    if (this.game.time.time < this.nextFire) { return; }
-
-    var x = source.x + 10;
-    var y = source.y + 10;
-    this.getFirstExists(false).fire(x, y, game.player_shooting_mapping[game.player_facing], this.bulletSpeed, 0, 0);
-
-    this.nextFire = this.game.time.time + this.fireRate;
-
-};
-
+// Phaser.Group.call(this, game, game.world, 'Single Bullet', false, true, Phaser.Physics.ARCADE);
 
 
 class Game extends Phaser.State {
