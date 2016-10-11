@@ -85,6 +85,7 @@ class Game extends Phaser.State {
     constructor(game, parent) {
         super(game, parent);
         this.player = undefined;
+        this.enemies = undefined;
         this.cursors = undefined;
         this.original_player_speed = 200;
         this.player_speed = 200;
@@ -213,7 +214,7 @@ class Game extends Phaser.State {
             "nw": [circle*0.75, circle*0.5],
             "n": [circle*0.875, circle*0.625]
         };
-        this.night = true;
+        this.night = false;
         this.release_N = true;
         this.release_A = true;
     }
@@ -225,7 +226,7 @@ class Game extends Phaser.State {
         this.game.load.image('star', 'assets/star.png');
         this.game.load.image('pencil', 'assets/pencil.png');
         this.game.load.spritesheet('dude', 'assets/student.png', 40, 40);
-        this.game.load.spritesheet('exam', 'assets/exam.jpg');
+        this.game.load.spritesheet('dude2', 'assets/dude.png', 32, 48);
         this.game.load.spritesheet('door_3_1', 'assets/doors/door_3_1.png');
         this.game.load.spritesheet('door_2_1', 'assets/doors/door_2_1.png');
         this.game.load.spritesheet('door_1_3', 'assets/doors/door_1_3.png');
@@ -234,6 +235,7 @@ class Game extends Phaser.State {
         this.game.load.image('tiles', 'assets/tiles.png');
         this.game.load.image('tiled_school', 'assets/tiled_school.png');
         this.game.load.image('invisibleBlock', 'assets/invisibleBlock.png');
+        this.game.load.spritesheet('dude','assets/dude.png');
     }
 
     //Setup code, method called after preload
@@ -297,8 +299,19 @@ class Game extends Phaser.State {
         //Lets create some baddies
         this.enemies = this.game.add.group();
         this.enemies.enableBody = true;
-        this.enemies.lives = 3;
-        this.map.createFromObjects('Others', 150, 'exam', 0, true, false, this.enemies);
+        this.map.createFromObjects('Others', 150, 'dude2', 4, true, false, this.enemies);
+        this.enemies.children.forEach(function (element, inedex, array){
+            element.data['velocityX'] = 100;
+            element.body.velocity.x = 100;
+            element.data['life'] = 3;
+        });
+
+
+        this.enemies.callAll('animations.add', 'animations', 'left', [0, 1, 2, 3], 2, true);
+        this.enemies.callAll('animations.add', 'animations', 'right', [5, 6, 7, 8], 7, true);
+        this.enemies.callAll('animations.play', 'animations', 'right');
+
+
 
         // Doors
         // Small doors open down
@@ -386,7 +399,7 @@ class Game extends Phaser.State {
         if (this.game.physics.arcade.isPaused){ return }
         this.game.physics.arcade.collide(this.player, this.layer);
         this.game.physics.arcade.collide(this.player, this.enemies);
-        this.game.physics.arcade.collide(this.enemies, this.layer);
+        this.game.physics.arcade.collide(this.enemies, this.layer, this.collisionHandlerEnemies, null, this);
         this.game.physics.arcade.collide(this.player, this.doors);
         this.game.physics.arcade.collide(this.enemies, this.doors);
 
@@ -422,6 +435,8 @@ class Game extends Phaser.State {
             this.release_N = true;
         }
         this.updateShadowTexture();
+
+
 
     }
     updateShadowTexture() {
@@ -553,20 +568,43 @@ class Game extends Phaser.State {
 
         //  When a bullet hits an alien we kill them both
         bullet.kill();
-        enemy.kill();
+        console.log(this.enemies.lives);
+        if(this.enemies.lives <= 1){
+            enemy.kill();
+        } else {
+            this.enemies.lives = this.enemies.lives - 1;
+        }
 
 
     }
     collisionHandlerWall (bullet, wall) {
-        //  When a bullet hits an alien we kill them both
+
         if (this.solid_tiles.includes(wall.index)){
             bullet.kill();
         }
     }
 
     collisionHandlerDoor (bullet, door) {
-        //  When a bullet hits an alien we kill them both
+
         bullet.kill();
+
+    }
+
+    collisionHandlerEnemies (enemy, wall) {
+
+        if(enemy.data['velocityX'] > 0){
+            enemy.body.velocity.x = -200;
+            enemy.animations.play('left');
+            enemy.data['velocityX'] = -100;
+        } else {
+            enemy.body.velocity.x = 200;
+            enemy.animations.play('right');
+            enemy.data['velocityX'] = 100;
+        }
+
+
+        //this.enemies.callAll('animations.play', 'animations', 'left', true);
+        //enemy.body.velocity.y = 100;
 
     }
 
