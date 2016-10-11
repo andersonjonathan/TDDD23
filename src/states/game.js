@@ -75,8 +75,6 @@ Weapon.SingleBullet.prototype.fire = function (source, game) {
 
 
 
-
-
 class Game extends Phaser.State {
 
 
@@ -84,6 +82,8 @@ class Game extends Phaser.State {
     //initialization code in the constructor
     constructor(game, parent) {
         super(game, parent);
+        this.killRate = 2000;
+        this.nextDeath = 0;
         this.player = undefined;
         this.enemies = undefined;
         this.cursors = undefined;
@@ -257,6 +257,7 @@ class Game extends Phaser.State {
         }
 
         this.player = this.game.add.sprite(1886, 8090, 'dude');
+        this.player.data['life'] = 3;
         this.player.anchor.setTo(0.5, 0.5);
         //  We need to enable physics on the player
         this.game.physics.arcade.enable(this.player);
@@ -268,6 +269,7 @@ class Game extends Phaser.State {
         this.physics.enable(this.halo, Phaser.Physics.ARCADE);
         this.halo.body.setSize(this.player.width +64, this.player.height +64, -52, -52);
 
+        this.player.body.bounce.set(0.8);
 
 
         this.game.camera.follow(this.player);
@@ -302,8 +304,11 @@ class Game extends Phaser.State {
         this.map.createFromObjects('Others', 150, 'dude2', 4, true, false, this.enemies);
         this.enemies.children.forEach(function (element, inedex, array){
             element.data['velocityX'] = 100;
-            element.body.velocity.x = 100;
             element.data['life'] = 3;
+
+            element.body.velocity.x = 100;
+            element.body.bounce.x = 0.7 + Math.random() * 0.2;
+            element.body.bounce.y = 1;
         });
 
 
@@ -570,6 +575,7 @@ class Game extends Phaser.State {
         bullet.kill();
         console.log(enemy.data['life']);
         if(enemy.data['life'] <= 1){
+            enemy.data['life'] = enemy.data['life'] - 1;
             enemy.kill();
         } else {
             enemy.data['life'] = enemy.data['life'] - 1;
@@ -605,8 +611,17 @@ class Game extends Phaser.State {
     }
 
     collisionHandlerPlayerEnemies (player, enemy){
-        player.kill();
-        this.game.physics.arcade.isPaused = (!this.game.physics.arcade.isPaused);
+
+        if (this.game.time.time < this.nextDeath) { return; }
+
+        if (this.player.data['life'] <= 1){
+            player.kill();
+            this.game.physics.arcade.isPaused = (!this.game.physics.arcade.isPaused);
+        } else {
+            this.player.data['life'] -= 1;
+        }
+
+        this.nextDeath = this.game.time.time + this.killRate;
     }
 
     move(){
