@@ -1,4 +1,5 @@
 import Rooms from '../prefabs/rooms';
+import Door from '../prefabs/door';
 //Documentation for Phaser's (2.5.0) states:: phaser.io/docs/2.5.0/Phaser.State.html
 class Doors extends Phaser.Group {
 
@@ -30,10 +31,9 @@ class Doors extends Phaser.Group {
 
     ];
     for (let door of door_data){
-      map.createFromObjects('Doors', door.tile, door.sprite, 0, true, false, this);
+      map.createFromObjects('Doors', door.tile, door.sprite, 0, true, false, this, Door);
       this.children.forEach(function (element, index, array) {
         element.body.immovable = true;
-        element.anchor.setTo(0, 0);
         if (!element.data.hasOwnProperty('open')) {
           element.data['open'] = door.open;
         }
@@ -49,52 +49,6 @@ class Doors extends Phaser.Group {
         }
       });
     }
-    
-    this.children.forEach(function (element, index, array) {
-      // Add a open and close function to the doors
-      element.open = function () {
-          var angle = 90;
-          var xsign = 0;
-          var ysign = 0;
-
-          if ((this.data['hinge'] == "right" && this.data['open'] == "down")||(this.data['hinge'] == "left" && this.data['open'] == "up")){
-            angle = angle * -1;
-            ysign = -1
-          }
-
-          if ((this.data['hinge'] == "up" && this.data['open'] == "right")||(this.data['hinge'] == "down" && this.data['open'] == "left")){
-            angle = angle * -1;
-          } else if ((this.data['hinge'] == "up" && this.data['open'] == "left")||(this.data['hinge'] == "down" && this.data['open'] == "right")){
-            xsign = -1;
-          }
-          game.add.tween(this).to( { angle: angle }, 1000, Phaser.Easing.Linear.None, true);
-          this.body.setSize(this.data.size.y, this.data.size.x, this.data.size.y*xsign, this.data.size.x*ysign);
-
-      };
-
-      element.close = function (){
-        game.add.tween(this).to({angle: 0}, 1000, Phaser.Easing.Linear.None, true);
-        this.body.setSize(this.data.size.x, this.data.size.y, 0, 0);
-      };
-      
-      // Store which room it goes to.
-      var x = element.position.x/32;
-      var y = element.position.y/32;
-      var potential_rooms = [
-        Rooms.xy_in_room(x, y),
-        Rooms.xy_in_room(x+2, y),
-        Rooms.xy_in_room(x-2, y),
-        Rooms.xy_in_room(x, y+2),
-        Rooms.xy_in_room(x, y-2)
-      ];
-      element.data.room = null;
-      for (var i = 0; i < potential_rooms.length; i++) {
-        if (potential_rooms[i] !== null){
-          element.data.room = potential_rooms[i];
-          break;
-        }
-      }
-    });
     Rooms.set_doors(this);
   }
 

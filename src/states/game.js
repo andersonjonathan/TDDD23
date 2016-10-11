@@ -187,6 +187,18 @@ class Game extends Phaser.State {
         if (this.input.keyboard.isDown(Phaser.Keyboard.PAGE_DOWN)) {
             console.log(Rooms.rooms[5].get_enemies(this.enemies))
         }
+
+        if (this.player.data.last_room != null){
+            var enemies_in_room = this.player.data.last_room.get_enemies(this.enemies);
+            if (enemies_in_room.length !== 0){
+                this.player.data.last_room.lock();
+                this.player.data.last_room.close();
+            } else {
+                this.player.data.last_room.unlock();
+                this.player.data.last_room.open();
+            }
+
+        }
         
         // Update night mode
         this.updateShadowTexture();
@@ -315,8 +327,8 @@ class Game extends Phaser.State {
     //You're able to do any final post-processing style effects here.
     render() {
 
-        this.game.debug.cameraInfo(this.game.camera, 32, 32);
-        this.game.debug.spriteCoords(this.player, 32, 500);
+        // this.game.debug.cameraInfo(this.game.camera, 32, 32);
+        // this.game.debug.spriteCoords(this.player, 32, 500);
         this.game.debug.text(this.game.time.fps, 2, 14, "#00ff00");
         if (this.player.data.last_room != null){
             this.game.debug.text(this.player.data.last_room.name, 62, 14, "#00ff00");
