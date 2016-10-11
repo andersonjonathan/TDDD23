@@ -9,7 +9,7 @@ class Game extends Phaser.State {
 
     constructor(game, parent) {
         super(game, parent);
-        this.killRate = 0;//2000;
+        this.killRate = 2000;
         this.nextDeath = 0;
         this.player = undefined;
         this.enemies = undefined;
