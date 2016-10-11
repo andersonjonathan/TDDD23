@@ -27,15 +27,6 @@ class Pencil extends Phaser.Sprite {
 
     this.body.gravity.set(gx, gy);
   };
-  //Load operations (uses Loader), method called first
-  preload() {
-
-  }
-
-  //Setup code, method called after preload
-  create() {
-
-  }
 
   //Code ran on each frame of game
   update() {
@@ -49,21 +40,6 @@ class Pencil extends Phaser.Sprite {
       this.scale.x += this.scaleSpeed;
       this.scale.y += this.scaleSpeed;
     }
-  }
-
-  //Called when game is paused
-  paused() {
-
-  }
-
-  //You're able to do any final post-processing style effects here.
-  render() {
-
-  }
-
-  //Called when switching to a new state
-  shutdown() {
-
   }
 
 }

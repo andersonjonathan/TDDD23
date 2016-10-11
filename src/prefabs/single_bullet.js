@@ -21,39 +21,14 @@ class SingleBullet extends Phaser.Group {
 
     var x = source.x + 10;
     var y = source.y + 10;
-    this.getFirstExists(false).fire(x, y, game.player_shooting_mapping[game.player_facing], this.bulletSpeed, 0, 0);
+    this.getFirstExists(false).fire(x, y, source.get_direction(), this.bulletSpeed, 0, 0);
 
     this.nextFire = this.game.time.time + this.fireRate;
 
   };
 
-  //Load operations (uses Loader), method called first
-  preload() {
-
-  }
-
-  //Setup code, method called after preload
-  create() {
-
-  }
-
   //Code ran on each frame of game
   update() {
-
-  }
-
-  //Called when game is paused
-  paused() {
-
-  }
-
-  //You're able to do any final post-processing style effects here.
-  render() {
-
-  }
-
-  //Called when switching to a new state
-  shutdown() {
 
   }
 
