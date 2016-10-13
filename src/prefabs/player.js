@@ -32,8 +32,8 @@ class Player extends Phaser.Sprite {
     this.animations.add('rightdown', [19, 20, 23], 10, true);
     this.animations.add('flashing', [5, 24], 10, true);
 
-    this.data.original_speed = 200;
-    this.data.speed = 200;
+    this.data.original_speed = 350;
+    this.data.speed = 350;
     this.data.facing = "n";
     this.data.facing_mapping = {
       "e": 11,
