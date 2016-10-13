@@ -46,6 +46,7 @@ class Game extends Phaser.State {
         this.game.load.image('pencil', 'assets/pencil.png');
         // player
         this.game.load.spritesheet('student', 'assets/student.png', 40, 40);
+        this.game.load.spritesheet('student2', 'assets/student2.png', 40, 40);
         // doors
         this.game.load.spritesheet('door_3_1', 'assets/doors/door_3_1.png');
         this.game.load.spritesheet('door_2_1', 'assets/doors/door_2_1.png');
@@ -85,7 +86,7 @@ class Game extends Phaser.State {
         // Add the player
         this.player = this.game.add.existing(new Player(this.game, 1886, 8090, this.input));
         
-        this.player.body.bounce.set(0.8);  // Can't set this in the player file for some retarded reason.
+        this.player.body.bounce.set(0.4);  // Can't set this in the player file for some retarded reason.
         
         this.game.camera.follow(this.player);
   
@@ -199,6 +200,10 @@ class Game extends Phaser.State {
             }
 
         }
+
+        if (this.game.time.time >= this.nextDeath) {
+            this.player.data['invincible'] = false;
+        }
         
         // Update night mode
         this.updateShadowTexture();
@@ -305,10 +310,14 @@ class Game extends Phaser.State {
     }
 
     collisionHandlerPlayerEnemies (player, enemy){
+
         // When the player runs in to an enemy.
-        if (this.game.time.time < this.nextDeath) { return; }
+        if (this.game.time.time < this.nextDeath) {
+            return;
+        }
 
         if (this.player.data['life'] <= 1){
+            this.player.data['life'] -= 1;
             player.kill();
             //this.game.state.restart(true, false); // This works like crap.
             this.game.physics.arcade.isPaused = (!this.game.physics.arcade.isPaused);
@@ -317,6 +326,9 @@ class Game extends Phaser.State {
         }
 
         this.nextDeath = this.game.time.time + this.killRate;
+        this.player.data['invincible'] = true;
+        console.log('Liv kvar = ' + this.player.data['life']);
+
     }
 
     //Called when game is paused
