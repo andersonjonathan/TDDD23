@@ -335,11 +335,11 @@ class Game extends Phaser.State {
     collisionHandlerEnemies (enemy, wall) {
         // Make the enemies change direction when hitting a wall
         if(enemy.data['velocityX'] > 0){
-            //enemy.body.velocity.x = -200;
+            enemy.body.velocity.x = -200;
             enemy.animations.play('left');
             enemy.data['velocityX'] = -100;
         } else {
-            //enemy.body.velocity.x = 200;
+            enemy.body.velocity.x = 200;
             enemy.animations.play('right');
             enemy.data['velocityX'] = 100;
         }

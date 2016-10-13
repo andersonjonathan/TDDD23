@@ -1,5 +1,5 @@
 import Enemy from '../prefabs/enemy';
-import Player from '../prefabs/player';
+import Rooms from '../prefabs/rooms';
 //Documentation for Phaser's (2.5.0) states:: phaser.io/docs/2.5.0/Phaser.State.html
 class Enemies extends Phaser.Group {
 
@@ -14,11 +14,11 @@ class Enemies extends Phaser.Group {
     this.enableBody = true;
     map.createFromObjects('Others', 150, 'dude2', 4, true, false, this, Enemy);
     this.children.forEach(function (element, index, array){
-      //element.body.velocity.x = 100;
-      //element.body.bounce.x = 0.7 + Math.random() * 0.2;
-      //element.body.bounce.y = 1;
+      element.body.velocity.x = 100;
+      element.body.bounce.x = 0.7 + Math.random() * 0.2;
+      element.body.bounce.y = 1;
 
-      game.physics.arcade.moveToObject(element, player, 60, 0);
+      //game.physics.arcade.moveToObject(element, player, 60, 0);
 
     });
 
@@ -34,7 +34,10 @@ class Enemies extends Phaser.Group {
     var game = this.game;
     //console.log(this.game.data['player']);
     this.children.forEach(function (element, index, array){
-      game.physics.arcade.moveToXY(element, game.data.player.position.x, game.data.player.position.y, 60)
+      if (Rooms.xy_in_room(element.position.x/32, element.position.y/32)===Rooms.xy_in_room(game.data.player.position.x/32, game.data.player.position.y/32)){
+        game.physics.arcade.moveToXY(element, game.data.player.position.x, game.data.player.position.y, 200)
+      }
+
     });
     //this.game.physics.arcade.moveToObject(this, this.game.data['player'], 60, 0);
 

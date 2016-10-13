@@ -49,17 +49,17 @@ http://renderhjs.net/shoebox/
 Tiled
 
 #TODO
-* Liv
+* Liv (grafiskt)
 * Baljan (Butik, köpa mer liv, kaffe som vapen)
-* Fiender (Skjuter mot dig, går mot dig)
+* Fiender (Skjuter mot dig)
 * Tenta 5 frågor
 * Klassrums inredning
-* Karta
 * Pause meny
 * Hjälp/kontroller
 * game over vy
-* Slumpa walking patterns
-* blinka med spelaren
 * Knuffa in spelaren i rummet när han öppnar dörren.
 * Branddörrar för att låsa delar av huset
-* Hitta saker på toa.
+* Hitta saker på toa. Fler saker.
+* Fler typer av enemies
+* Fler vapen
+* Ammo
