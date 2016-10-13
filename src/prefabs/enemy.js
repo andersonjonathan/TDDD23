@@ -14,7 +14,6 @@ class Enemy extends Phaser.Sprite {
   //Code ran on each frame of game
   update() {
 
-
   }
 
 

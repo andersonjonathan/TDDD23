@@ -85,6 +85,7 @@ var rooms = [
     new Room(79, 293, 23, 312, 40, "U2"),
     new Room(80, 284, 23, 291, 31, "Kök U"),
     new Room(81, 207, 68, 270, 104, "Innergård"),
+    new Room(82, 63, 235, 66, 239, "Toalett 1")
 ];
 
 class Rooms{

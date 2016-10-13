@@ -32,8 +32,8 @@ class Player extends Phaser.Sprite {
     this.animations.add('rightdown', [19, 20, 23], 10, true);
     this.animations.add('flashing', [5, 24], 10, true);
 
-    this.data.original_speed = 350;
-    this.data.speed = 350;
+    this.data.original_speed = 320;
+    this.data.speed = 320;
     this.data.facing = "n";
     this.data.facing_mapping = {
       "e": 11,
@@ -78,7 +78,7 @@ class Player extends Phaser.Sprite {
 
   //Code ran on each frame of game
   update() {
-    if (this.input.keyboard.isDown(Phaser.Keyboard.R))
+   if (this.input.keyboard.isDown(Phaser.Keyboard.R))
     {
       this.data.speed = this.data.original_speed * 3
     } else {

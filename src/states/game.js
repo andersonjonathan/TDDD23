@@ -4,7 +4,7 @@ import Doors from '../prefabs/doors';
 import Player from '../prefabs/player';
 import Rooms from '../prefabs/rooms';
 import Enemies from '../prefabs/enemies';
-
+import Boots from '../prefabs/boots';
 
 class Game extends Phaser.State {
 
@@ -52,6 +52,8 @@ class Game extends Phaser.State {
         this.game.load.spritesheet('door_2_1', 'assets/doors/door_2_1.png');
         this.game.load.spritesheet('door_1_3', 'assets/doors/door_1_3.png');
         this.game.load.spritesheet('door_1_2', 'assets/doors/door_1_2.png');
+        //Bonus items
+        this.game.load.spritesheet('boots', 'assets/boots.png', 48, 48);
 
         // Local assets
         this.game.load.spritesheet('dude2', 'assets/dude.png', 32, 48);
@@ -85,6 +87,8 @@ class Game extends Phaser.State {
 
         // Add the player
         this.player = this.game.add.existing(new Player(this.game, 1886, 8090, this.input));
+        this.game.data = {};
+        this.game.data['player'] = this.player;
         
         this.player.body.bounce.set(0.4);  // Can't set this in the player file for some retarded reason.
         
@@ -108,10 +112,16 @@ class Game extends Phaser.State {
         this.currentWeapon = 0;
 
         // Enemies
-        this.enemies = new Enemies(this.game, this.map);
+        this.enemies = new Enemies(this.game, this.map, this.player);
 
         // Doors
         this.doors = new Doors(this.game, this.map);
+
+        //Boots
+        this.boots = new Boots(this.game, this.map);
+        this.boots.children.forEach(function(element, index, array){
+            element.alpha = 0;
+        })
 
         // Who wants basic timing...
         this.game.time.advancedTiming = true;
@@ -169,6 +179,7 @@ class Game extends Phaser.State {
         this.game.physics.arcade.overlap(this.weapons, this.layer, this.collisionHandlerWall, null, this);
         this.game.physics.arcade.overlap(this.weapons, this.doors, this.collisionHandlerDoor, null, this);
         this.game.physics.arcade.overlap(this.doors, this.player.halo, this.toggleDoor, null, this);
+        this.game.physics.arcade.overlap(this.player, this.boots, this.pickUpBoots, null, this);
         
         // Some keyboard action
         if (this.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
@@ -189,6 +200,19 @@ class Game extends Phaser.State {
             console.log(Rooms.rooms[5].get_enemies(this.enemies))
         }
 
+        if (this.player.data.last_room == null){
+
+            var x = Math.round(this.player.position.x / 32);
+            var y = Math.round(this.player.position.y / 32);
+            if(this.player.data.last_room != Rooms.xy_in_room(x, y)) {
+                var maybeNight = Math.floor((Math.random() * 10) + 1);
+                console.log(maybeNight);
+                if (maybeNight == 3) {
+                    this.night = true;
+                }
+            };
+        }
+
         if (this.player.data.last_room != null){
             var enemies_in_room = this.player.data.last_room.get_enemies(this.enemies);
             if (enemies_in_room.length !== 0){
@@ -197,6 +221,7 @@ class Game extends Phaser.State {
             } else {
                 this.player.data.last_room.unlock();
                 this.player.data.last_room.open();
+                this.night = false;
             }
 
         }
@@ -204,6 +229,7 @@ class Game extends Phaser.State {
         if (this.game.time.time >= this.nextDeath) {
             this.player.data['invincible'] = false;
         }
+
         
         // Update night mode
         this.updateShadowTexture();
@@ -252,6 +278,13 @@ class Game extends Phaser.State {
 
     toggleDoor(halo, door){
         // Open or close the door.
+        if (this.player.data.last_room != null){
+            if (this.player.data.last_room.name == "Toalett 1"){
+                this.boots.children.forEach(function(element, index, array){
+                    element.alpha = 1;
+                });
+            }
+        }
         if (this.input.keyboard.isDown(Phaser.Keyboard.A))
         {
             if (door.angle == 0){
@@ -268,7 +301,11 @@ class Game extends Phaser.State {
             this.release_A = true
         }
     }
-    
+
+    pickUpBoots(player, boots){
+        boots.kill();
+        this.player.data.speed = this.player.data.original_speed * 3;
+    }
 
     collisionHandler (bullet, enemy) {
         //  When a bullet hits an alien we kill them both
@@ -298,11 +335,11 @@ class Game extends Phaser.State {
     collisionHandlerEnemies (enemy, wall) {
         // Make the enemies change direction when hitting a wall
         if(enemy.data['velocityX'] > 0){
-            enemy.body.velocity.x = -200;
+            //enemy.body.velocity.x = -200;
             enemy.animations.play('left');
             enemy.data['velocityX'] = -100;
         } else {
-            enemy.body.velocity.x = 200;
+            //enemy.body.velocity.x = 200;
             enemy.animations.play('right');
             enemy.data['velocityX'] = 100;
         }
