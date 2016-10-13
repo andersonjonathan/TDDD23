@@ -4,6 +4,8 @@ import Doors from '../prefabs/doors';
 import Player from '../prefabs/player';
 import Rooms from '../prefabs/rooms';
 import Enemies from '../prefabs/enemies';
+import GameAreas from '../prefabs/game_areas';
+import FireDoors from '../prefabs/fire_doors';
 
 
 class Game extends Phaser.State {
@@ -51,6 +53,9 @@ class Game extends Phaser.State {
         this.game.load.spritesheet('door_2_1', 'assets/doors/door_2_1.png');
         this.game.load.spritesheet('door_1_3', 'assets/doors/door_1_3.png');
         this.game.load.spritesheet('door_1_2', 'assets/doors/door_1_2.png');
+        // fire door
+        this.game.load.spritesheet('fire_door_3_1', 'assets/doors/fire_door_3_1.png');
+        this.game.load.spritesheet('fire_door_1_3', 'assets/doors/fire_door_1_3.png');
 
         // Local assets
         this.game.load.spritesheet('dude2', 'assets/dude.png', 32, 48);
@@ -112,6 +117,9 @@ class Game extends Phaser.State {
         // Doors
         this.doors = new Doors(this.game, this.map);
 
+        // Fire doors
+        this.fire_doors = new FireDoors(this.game, this.map);
+
         // Who wants basic timing...
         this.game.time.advancedTiming = true;
         
@@ -163,11 +171,15 @@ class Game extends Phaser.State {
         this.game.physics.arcade.collide(this.enemies, this.layer, this.collisionHandlerEnemies, null, this);
         this.game.physics.arcade.collide(this.player, this.doors);
         this.game.physics.arcade.collide(this.enemies, this.doors);
+        this.game.physics.arcade.collide(this.player, this.fire_doors);
+        this.game.physics.arcade.collide(this.enemies, this.fire_doors);
 
         this.game.physics.arcade.overlap(this.weapons, this.enemies, this.collisionHandler, null, this);
         this.game.physics.arcade.overlap(this.weapons, this.layer, this.collisionHandlerWall, null, this);
         this.game.physics.arcade.overlap(this.weapons, this.doors, this.collisionHandlerDoor, null, this);
+        this.game.physics.arcade.overlap(this.weapons, this.fire_doors, this.collisionHandlerDoor, null, this);
         this.game.physics.arcade.overlap(this.doors, this.player.halo, this.toggleDoor, null, this);
+        this.game.physics.arcade.overlap(this.fire_doors, this.player.halo, this.toggleFireDoor, null, this);
         
         // Some keyboard action
         if (this.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
@@ -185,7 +197,7 @@ class Game extends Phaser.State {
         }
 
         if (this.input.keyboard.isDown(Phaser.Keyboard.PAGE_DOWN)) {
-            console.log(Rooms.rooms[5].get_enemies(this.enemies))
+            console.log(GameAreas.xy_in_game_area(this.player.position.x/32, this.player.position.y/32))
         }
 
         if (this.player.data.last_room != null){
@@ -255,6 +267,25 @@ class Game extends Phaser.State {
                 if (this.release_A) {
                     // Close the door
                     door.close();
+                }
+            }
+            //console.log(door.data.room);
+            this.release_A = false;
+        } else {
+            this.release_A = true
+        }
+    }
+
+    toggleFireDoor(halo, fire_door){
+        // Open or close the door.
+        if (this.input.keyboard.isDown(Phaser.Keyboard.A))
+        {
+            if (fire_door.angle == 0){
+                fire_door.open();
+            } else {
+                if (this.release_A) {
+                    // Close the door
+                    fire_door.close();
                 }
             }
             //console.log(door.data.room);
