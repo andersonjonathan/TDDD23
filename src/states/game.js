@@ -8,6 +8,7 @@ import GameAreas from '../prefabs/game_areas';
 import FireDoors from '../prefabs/fire_doors';
 
 import Boots from '../prefabs/boots';
+import Baljan from '../prefabs/baljan';
 
 class Game extends Phaser.State {
 
@@ -16,8 +17,12 @@ class Game extends Phaser.State {
         
         this.killRate = 2000;
         this.nextDeath = 0;
+        this.baljanTime = 60000;
+        this.nextLife = 0;
         this.player = undefined;
         this.enemies = undefined;
+        this.text_group = null;
+
 
         this.weapons = [];
         this.currentWeapon = 0;
@@ -55,14 +60,17 @@ class Game extends Phaser.State {
         this.game.load.spritesheet('door_2_1', 'assets/doors/door_2_1.png');
         this.game.load.spritesheet('door_1_3', 'assets/doors/door_1_3.png');
         this.game.load.spritesheet('door_1_2', 'assets/doors/door_1_2.png');
+
         // fire door
         this.game.load.spritesheet('fire_door_3_1', 'assets/doors/fire_door_3_1.png');
         this.game.load.spritesheet('fire_door_1_3', 'assets/doors/fire_door_1_3.png');
+
         //Bonus items
         this.game.load.spritesheet('boots', 'assets/boots.png', 48, 48);
 
         // Local assets
         this.game.load.spritesheet('dude2', 'assets/dude.png', 32, 48);
+        this.game.load.image('baljan', 'assets/baljan-logo.png');
 
         this.game.load.tilemap('map', 'assets/maze.json', null, Phaser.Tilemap.TILED_JSON);
         this.game.load.image('tiles', 'assets/tiles.png');
@@ -132,6 +140,11 @@ class Game extends Phaser.State {
             element.alpha = 0;
         });
 
+        //Baljan
+        this.baljan = new Baljan(this.game, this.map);
+        //this.baljanKey = this.game.input.keyboard.addKey(Phaser.Keyboard.B);
+
+
         // Who wants basic timing...
         this.game.time.advancedTiming = true;
         
@@ -183,6 +196,9 @@ class Game extends Phaser.State {
     togglePause() {
         // Toggle pause on/off
         this.player.animations.stop();
+        this.enemies.children.forEach(function(element, index, array){
+            element.animations.stop();
+        });
         this.game.physics.arcade.isPaused = (!this.game.physics.arcade.isPaused);
         if (this.game.physics.arcade.isPaused){
             console.log("PAAAAUSE!");
@@ -204,6 +220,8 @@ class Game extends Phaser.State {
         this.game.physics.arcade.collide(this.enemies, this.doors);
         this.game.physics.arcade.collide(this.player, this.fire_doors);
         this.game.physics.arcade.collide(this.enemies, this.fire_doors);
+        this.game.physics.arcade.collide(this.player, this.baljan);
+        this.game.physics.arcade.collide(this.enemies, this.enemies);
 
         this.game.physics.arcade.overlap(this.weapons, this.enemies, this.collisionHandler, null, this);
         this.game.physics.arcade.overlap(this.weapons, this.layer, this.collisionHandlerWall, null, this);
@@ -211,6 +229,7 @@ class Game extends Phaser.State {
         this.game.physics.arcade.overlap(this.weapons, this.fire_doors, this.collisionHandlerDoor, null, this);
         this.game.physics.arcade.overlap(this.doors, this.player.halo, this.toggleDoor, null, this);
         this.game.physics.arcade.overlap(this.player, this.boots, this.pickUpBoots, null, this);
+        this.game.physics.arcade.overlap(this.player.halo, this.baljan, this.shopInBaljan, null, this);
         
         // Some keyboard action
         if (this.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
@@ -237,7 +256,6 @@ class Game extends Phaser.State {
             var y = Math.round(this.player.position.y / 32);
             if(this.player.data.last_room != Rooms.xy_in_room(x, y)) {
                 var maybeNight = Math.floor((Math.random() * 10) + 1);
-                console.log(maybeNight);
                 if (maybeNight == 3) {
                     this.night = true;
                 }
@@ -270,7 +288,6 @@ class Game extends Phaser.State {
         if (this.game.time.time >= this.nextDeath) {
             this.player.data['invincible'] = false;
         }
-
         
         // Update night mode
         this.updateShadowTexture();
@@ -385,7 +402,7 @@ class Game extends Phaser.State {
     collisionHandler (bullet, enemy) {
         //  When a bullet hits an alien we kill them both
         bullet.kill();
-        console.log(enemy.data['life']);
+        console.log("Enemy life left = " + enemy.data['life']);
         if(enemy.data['life'] <= 1){
             enemy.data['life'] = enemy.data['life'] - 1;
             enemy.kill();
@@ -443,6 +460,69 @@ class Game extends Phaser.State {
 
     }
 
+    shopInBaljan (halo, baljan){
+        if (this.input.keyboard.isDown(Phaser.Keyboard.B))
+        {
+
+            if (this.release_B) {
+                // Close the door
+                this.addLife();
+            }
+            //console.log(door.data.room);
+            this.release_B = false;
+        } else {
+            this.release_B = true
+        }
+    }
+
+    addLife (halo, baljan) {
+        if (this.player.data['life'] < 3) {
+            if (this.game.time.time < this.nextLife) {
+                if(this.text_group == null) {
+                    /*var text = "You must wait " + (this.nextLife - this.game.time.time) / 1000 + " more seconds.";
+                    this.text_group = this.game.add.group();
+                    this.text_group.add(this.game.add.text(100, 100, text, {
+                        font: "32px Arial",
+                        fill: "#ff8000",
+                        align: "center"
+                    }));
+                    this.text_group.fixedToCamera = true;
+                    this.time.events.add(2000, this.destroyText, this);*/
+                    this.createText("You must wait " + (this.nextLife - this.game.time.time) / 1000 + " more seconds.");
+                    return;
+                }
+            }
+            console.log("Köpa kaffe i baljan");
+            this.player.data['life'] = this.player.data['life'] + 1;
+            this.nextLife = this.game.time.time + this.baljanTime;
+            this.createText("Life increased to " + this.player.data['life'])
+        } else {
+            console.log("You already have full health");
+            if (this.text_group == null){
+                this.createText("You already have full health");
+                return;
+            }
+        }
+    }
+
+    createText (text) {
+        this.text_group = this.game.add.group();
+        this.text_group.add(this.game.add.text(100, 100, text, {
+            font: "32px Arial",
+            fill: "#ff8000",
+            align: "center"
+        }));
+        this.text_group.fixedToCamera = true;
+        this.time.events.add(2000, this.destroyText, this);
+    }
+
+    destroyText (){
+        console.log("destroying text");
+        //this.time.events.add(0, this.text_group.destroy, this.text_group);
+        //this.text_group = null;
+        this.text_group.destroy();
+        this.text_group = null;
+    }
     //Called when game is paused
     paused() {
         console.log("PAAAAUSE!");
