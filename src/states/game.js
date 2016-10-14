@@ -518,10 +518,10 @@ class Game extends Phaser.State {
 
     destroyText (){
         console.log("destroying text");
-        //this.time.events.add(0, this.text_group.destroy, this.text_group);
-        //this.text_group = null;
-        this.text_group.destroy();
+        this.time.events.add(0, this.text_group.destroy, this.text_group);
         this.text_group = null;
+        //this.text_group.destroy();
+        //this.text_group = null;
     }
     //Called when game is paused
     paused() {
