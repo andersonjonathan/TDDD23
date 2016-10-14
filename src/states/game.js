@@ -23,7 +23,7 @@ class Game extends Phaser.State {
         this.weaponName = null;
         this.map = undefined;
         this.layer = undefined;
-        this.solid_tiles = [17, 45];
+        this.solid_tiles = [17, 45, 59, 28];
 
         var circle = Math.PI*2;
         this.shadow_mapping = {
@@ -39,6 +39,7 @@ class Game extends Phaser.State {
         this.night = false;
         this.release_N = true;
         this.release_A = true;
+        this.current_game_area = 0;
     }
 
     //Load operations (uses Loader), method called first
@@ -100,7 +101,8 @@ class Game extends Phaser.State {
             Phaser.Keyboard.A,
             Phaser.Keyboard.R,
             Phaser.Keyboard.N,
-            Phaser.Keyboard.PAGE_DOWN // only for debugging
+            Phaser.Keyboard.PAGE_DOWN, // only for debugging
+            Phaser.Keyboard.M, // only for debugging
         ]);
         
         // Add listener to the p button for pausing
@@ -146,6 +148,25 @@ class Game extends Phaser.State {
         // everything below this sprite.
         lightSprite.blendMode = Phaser.blendModes.MULTIPLY;
 
+        if (this.current_game_area !== 0){
+
+            for (var i = 0; i < this.current_game_area; i++){
+                console.log(i);
+                var ga = GameAreas.game_areas[i];
+                var ga_enemies = ga.get_enemies(this.enemies)
+                for (var j = 0; j < ga_enemies.length; j++){
+                    ga_enemies[j]['data']['life'] = 0;
+                    ga_enemies[j].kill();
+                }
+                console.log("Next area");
+                ga.unlock();
+                ga.open();
+                if (this.current_game_area == 12){
+                    console.log("Winner!");
+                }
+            }
+        }
+
     }
 
 
@@ -179,7 +200,6 @@ class Game extends Phaser.State {
         this.game.physics.arcade.overlap(this.weapons, this.doors, this.collisionHandlerDoor, null, this);
         this.game.physics.arcade.overlap(this.weapons, this.fire_doors, this.collisionHandlerDoor, null, this);
         this.game.physics.arcade.overlap(this.doors, this.player.halo, this.toggleDoor, null, this);
-        this.game.physics.arcade.overlap(this.fire_doors, this.player.halo, this.toggleFireDoor, null, this);
         
         // Some keyboard action
         if (this.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
@@ -210,15 +230,14 @@ class Game extends Phaser.State {
                 this.player.data.last_room.open();
             }
         }
-        if (this.player.data.last_area != null){
-
-            var enemies_in_area = this.player.data.last_area.get_enemies(this.enemies);
-            if (enemies_in_area.length !== 0){
-                this.player.data.last_area.lock();
-                this.player.data.last_area.close();
-            } else {
-                this.player.data.last_area.unlock();
-                this.player.data.last_area.open();
+        var ga = GameAreas.game_areas[this.current_game_area];
+        if (ga.get_enemies(this.enemies).length === 0){
+            console.log("yay");
+            ga.unlock();
+            ga.open();
+            this.current_game_area += 1;
+            if (this.current_game_area == 12){
+                console.log("Winner!");
             }
         }
         //console.log(this.player.data.last_area);
@@ -277,25 +296,6 @@ class Game extends Phaser.State {
                 if (this.release_A) {
                     // Close the door
                     door.close();
-                }
-            }
-            //console.log(door.data.room);
-            this.release_A = false;
-        } else {
-            this.release_A = true
-        }
-    }
-
-    toggleFireDoor(halo, fire_door){
-        // Open or close the door.
-        if (this.input.keyboard.isDown(Phaser.Keyboard.A))
-        {
-            if (fire_door.angle == 0){
-                fire_door.open();
-            } else {
-                if (this.release_A) {
-                    // Close the door
-                    fire_door.close();
                 }
             }
             //console.log(door.data.room);

@@ -12,11 +12,7 @@ class Door extends Phaser.Sprite {
     var x = this.position.x/32;
     var y = this.position.y/32;
     var potential_rooms = [
-      Rooms.xy_in_room(x, y),
-      Rooms.xy_in_room(x+2, y),
-      Rooms.xy_in_room(x-2, y),
-      Rooms.xy_in_room(x, y+2),
-      Rooms.xy_in_room(x, y-2)
+      Rooms.xy_in_room(x, y) 
     ];
     this.data.room = null;
     for (var i = 0; i < potential_rooms.length; i++) {

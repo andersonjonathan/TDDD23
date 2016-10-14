@@ -2,13 +2,14 @@
  * Created by jonathan on 2016-10-12.
  */
 class GameArea{
-    constructor(id, x0, y0, x1, y1, name) {
+    constructor(id, x0, y0, x1, y1, name, fire_doors) {
         this.id = id;
         this.x0 = x0;
         this.y0 = y0;
         this.x1 = x1;
         this.y1 = y1;
         this.name = name;
+        this.fire_door_indexes = fire_doors;
         this.fire_doors = [];
         this.locked = true;
     }

@@ -13,10 +13,6 @@ class FireDoor extends Phaser.Sprite {
         var y = this.position.y/32;
         var potential_game_areas = [
             GameArea.xy_in_game_area(x, y),
-            GameArea.xy_in_game_area(x+2, y),
-            GameArea.xy_in_game_area(x-2, y),
-            GameArea.xy_in_game_area(x, y+2),
-            GameArea.xy_in_game_area(x, y-2)
         ];
         this.data.game_area = null;
         for (var i = 0; i < potential_game_areas.length; i++) {
