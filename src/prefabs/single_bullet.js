@@ -6,8 +6,8 @@ class SingleBullet extends Phaser.Group {
   constructor(game, parent) {
     super(game, game.world, 'Single Bullet', false, true, Phaser.Physics.ARCADE);
     this.nextFire = 0;
-    this.bulletSpeed = 500;
-    this.fireRate = 300;
+    this.bulletSpeed = 800;
+    this.fireRate = 200;
     for (var i = 0; i < 64; i++)
     {
       this.add(new Pencil(game, 'pencil'), true);

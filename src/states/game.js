@@ -7,6 +7,7 @@ import Enemies from '../prefabs/enemies';
 import GameAreas from '../prefabs/game_areas';
 import FireDoors from '../prefabs/fire_doors';
 
+import Boots from '../prefabs/boots';
 
 class Game extends Phaser.State {
 
@@ -49,6 +50,7 @@ class Game extends Phaser.State {
         this.game.load.image('pencil', 'assets/pencil.png');
         // player
         this.game.load.spritesheet('student', 'assets/student.png', 40, 40);
+        this.game.load.spritesheet('student2', 'assets/student2.png', 40, 40);
         // doors
         this.game.load.spritesheet('door_3_1', 'assets/doors/door_3_1.png');
         this.game.load.spritesheet('door_2_1', 'assets/doors/door_2_1.png');
@@ -57,6 +59,8 @@ class Game extends Phaser.State {
         // fire door
         this.game.load.spritesheet('fire_door_3_1', 'assets/doors/fire_door_3_1.png');
         this.game.load.spritesheet('fire_door_1_3', 'assets/doors/fire_door_1_3.png');
+        //Bonus items
+        this.game.load.spritesheet('boots', 'assets/boots.png', 48, 48);
 
         // Local assets
         this.game.load.spritesheet('dude2', 'assets/dude.png', 32, 48);
@@ -90,8 +94,10 @@ class Game extends Phaser.State {
 
         // Add the player
         this.player = this.game.add.existing(new Player(this.game, 12*32, 244*32, this.input));
+        this.game.data = {};
+        this.game.data['player'] = this.player;
         
-        this.player.body.bounce.set(0.8);  // Can't set this in the player file for some retarded reason.
+        this.player.body.bounce.set(0.4);  // Can't set this in the player file for some retarded reason.
         
         this.game.camera.follow(this.player);
   
@@ -114,13 +120,19 @@ class Game extends Phaser.State {
         this.currentWeapon = 0;
 
         // Enemies
-        this.enemies = new Enemies(this.game, this.map);
+        this.enemies = new Enemies(this.game, this.map, this.player);
 
         // Doors
         this.doors = new Doors(this.game, this.map);
 
         // Fire doors
         this.fire_doors = new FireDoors(this.game, this.map);
+
+        //Boots
+        this.boots = new Boots(this.game, this.map);
+        this.boots.children.forEach(function(element, index, array){
+            element.alpha = 0;
+        })
 
         // Who wants basic timing...
         this.game.time.advancedTiming = true;
@@ -200,6 +212,7 @@ class Game extends Phaser.State {
         this.game.physics.arcade.overlap(this.weapons, this.doors, this.collisionHandlerDoor, null, this);
         this.game.physics.arcade.overlap(this.weapons, this.fire_doors, this.collisionHandlerDoor, null, this);
         this.game.physics.arcade.overlap(this.doors, this.player.halo, this.toggleDoor, null, this);
+        this.game.physics.arcade.overlap(this.player, this.boots, this.pickUpBoots, null, this);
         
         // Some keyboard action
         if (this.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
@@ -220,6 +233,19 @@ class Game extends Phaser.State {
             console.log(GameAreas.xy_in_game_area(this.player.position.x/32, this.player.position.y/32))
         }
 
+        if (this.player.data.last_room == null){
+
+            var x = Math.round(this.player.position.x / 32);
+            var y = Math.round(this.player.position.y / 32);
+            if(this.player.data.last_room != Rooms.xy_in_room(x, y)) {
+                var maybeNight = Math.floor((Math.random() * 10) + 1);
+                console.log(maybeNight);
+                if (maybeNight == 3) {
+                    this.night = true;
+                }
+            };
+        }
+
         if (this.player.data.last_room != null){
             var enemies_in_room = this.player.data.last_room.get_enemies(this.enemies);
             if (enemies_in_room.length !== 0){
@@ -228,6 +254,7 @@ class Game extends Phaser.State {
             } else {
                 this.player.data.last_room.unlock();
                 this.player.data.last_room.open();
+                this.night = false;
             }
         }
         var ga = GameAreas.game_areas[this.current_game_area];
@@ -241,6 +268,12 @@ class Game extends Phaser.State {
             }
         }
         //console.log(this.player.data.last_area);
+
+        if (this.game.time.time >= this.nextDeath) {
+            this.player.data['invincible'] = false;
+        }
+
+        
         // Update night mode
         this.updateShadowTexture();
         
@@ -288,6 +321,13 @@ class Game extends Phaser.State {
 
     toggleDoor(halo, door){
         // Open or close the door.
+        if (this.player.data.last_room != null){
+            if (this.player.data.last_room.name == "Toalett 1"){
+                this.boots.children.forEach(function(element, index, array){
+                    element.alpha = 1;
+                });
+            }
+        }
         if (this.input.keyboard.isDown(Phaser.Keyboard.A))
         {
             if (door.angle == 0){
@@ -304,7 +344,11 @@ class Game extends Phaser.State {
             this.release_A = true
         }
     }
-    
+
+    pickUpBoots(player, boots){
+        boots.kill();
+        this.player.data.speed = this.player.data.original_speed * 3;
+    }
 
     collisionHandler (bullet, enemy) {
         //  When a bullet hits an alien we kill them both
@@ -346,10 +390,14 @@ class Game extends Phaser.State {
     }
 
     collisionHandlerPlayerEnemies (player, enemy){
+
         // When the player runs in to an enemy.
-        if (this.game.time.time < this.nextDeath) { return; }
+        if (this.game.time.time < this.nextDeath) {
+            return;
+        }
 
         if (this.player.data['life'] <= 1){
+            this.player.data['life'] -= 1;
             player.kill();
             //this.game.state.restart(true, false); // This works like crap.
             this.game.physics.arcade.isPaused = (!this.game.physics.arcade.isPaused);
@@ -358,6 +406,9 @@ class Game extends Phaser.State {
         }
 
         this.nextDeath = this.game.time.time + this.killRate;
+        this.player.data['invincible'] = true;
+        console.log('Liv kvar = ' + this.player.data['life']);
+
     }
 
     //Called when game is paused

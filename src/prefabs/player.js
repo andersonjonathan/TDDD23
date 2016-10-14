@@ -5,13 +5,14 @@ class Player extends Phaser.Sprite {
 
   //initialization code in the constructor
   constructor(game, x, y, input) {
-    super(game, x, y, 'student');
+    super(game, x, y, 'student2');
 
     //  We need to enable physics on the player
     game.physics.arcade.enable(this);
     this.input = input;
 
     this.data['life'] = 3;
+    this.data['invincible'] = false;
     this.anchor.setTo(0.5, 0.5);
     this.halo = game.add.sprite(0, 0, 'invisibleBlock'); //invisibleBlock is a 1x1 px transparent png
     this.halo.anchor.setTo(0.5, 0.5);
@@ -30,9 +31,10 @@ class Player extends Phaser.Sprite {
     this.animations.add('rightup', [12, 13, 17], 10, true);
     this.animations.add('leftdown', [14, 15, 16], 10, true);
     this.animations.add('rightdown', [19, 20, 23], 10, true);
+    this.animations.add('flashing', [5, 24], 10, true);
 
-    this.data.original_speed = 200;
-    this.data.speed = 200;
+    this.data.original_speed = 320;
+    this.data.speed = 320;
     this.data.facing = "n";
     this.data.facing_mapping = {
       "e": 11,
@@ -79,7 +81,7 @@ class Player extends Phaser.Sprite {
 
   //Code ran on each frame of game
   update() {
-    if (this.input.keyboard.isDown(Phaser.Keyboard.R))
+   if (this.input.keyboard.isDown(Phaser.Keyboard.R))
     {
       this.data.speed = this.data.original_speed * 3
     } else {
@@ -131,7 +133,9 @@ class Player extends Phaser.Sprite {
     }
 
     if (this.game.time.time > this.nextUpdate) {
-      if (this.cursors.up.isDown && this.cursors.right.isDown) {
+      if (this.data['invincible'] == true) {
+        this.animations.play('flashing');
+      } else if (this.cursors.up.isDown && this.cursors.right.isDown){
         this.animations.play('rightup');
         this.data.facing = "ne";
       } else if (this.cursors.up.isDown && this.cursors.left.isDown) {
@@ -160,9 +164,12 @@ class Player extends Phaser.Sprite {
     }
     if (!(this.cursors.right.isDown || this.cursors.left.isDown || this.cursors.up.isDown || this.cursors.down.isDown)) {
       //  Stand still
-
-      this.animations.stop();
-      this.frame = this.data.facing_mapping[this.data.facing];
+      if (this.data['invincible'] == true) {
+        this.animations.play('flashing');
+      } else {
+        this.animations.stop();
+        this.frame = this.data.facing_mapping[this.data.facing];
+      }
     }
   }
 
