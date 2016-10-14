@@ -18,6 +18,7 @@ class Game extends Phaser.State {
         this.nextLife = 0;
         this.player = undefined;
         this.enemies = undefined;
+        this.text_group = null;
 
 
         this.weapons = [];
@@ -131,8 +132,7 @@ class Game extends Phaser.State {
 
         //Baljan
         this.baljan = new Baljan(this.game, this.map);
-        this.baljanKey = this.game.input.keyboard.addKey(Phaser.Keyboard.B);
-        this.game.input.keyboard.removeKeyCapture(Phaser.Keyboard.B);
+        //this.baljanKey = this.game.input.keyboard.addKey(Phaser.Keyboard.B);
 
 
         // Who wants basic timing...
@@ -167,6 +167,9 @@ class Game extends Phaser.State {
     togglePause() {
         // Toggle pause on/off
         this.player.animations.stop();
+        this.enemies.children.forEach(function(element, index, array){
+            element.animations.stop();
+        });
         this.game.physics.arcade.isPaused = (!this.game.physics.arcade.isPaused);
         if (this.game.physics.arcade.isPaused){
             console.log("PAAAAUSE!");
@@ -222,7 +225,6 @@ class Game extends Phaser.State {
             var y = Math.round(this.player.position.y / 32);
             if(this.player.data.last_room != Rooms.xy_in_room(x, y)) {
                 var maybeNight = Math.floor((Math.random() * 10) + 1);
-                console.log(maybeNight);
                 if (maybeNight == 3) {
                     this.night = true;
                 }
@@ -245,7 +247,6 @@ class Game extends Phaser.State {
         if (this.game.time.time >= this.nextDeath) {
             this.player.data['invincible'] = false;
         }
-
         
         // Update night mode
         this.updateShadowTexture();
@@ -326,7 +327,7 @@ class Game extends Phaser.State {
     collisionHandler (bullet, enemy) {
         //  When a bullet hits an alien we kill them both
         bullet.kill();
-        console.log(enemy.data['life']);
+        console.log("Enemy life left = " + enemy.data['life']);
         if(enemy.data['life'] <= 1){
             enemy.data['life'] = enemy.data['life'] - 1;
             enemy.kill();
@@ -385,31 +386,65 @@ class Game extends Phaser.State {
     }
 
     shopInBaljan (halo, baljan){
+        if (this.input.keyboard.isDown(Phaser.Keyboard.B))
+        {
 
-        this.baljanKey.onDown.add(this.addLife, this);
+            if (this.release_B) {
+                // Close the door
+                this.addLife();
+            }
+            //console.log(door.data.room);
+            this.release_B = false;
+        } else {
+            this.release_B = true
+        }
     }
 
     addLife (halo, baljan) {
-        if (this.game.time.time < this.nextLife)
-            {
-                var text = "You must wait " + (this.nextLife - this.game.time.time) / 1000 + " more seconds.";
-                this.text_group = this.game.add.group();
-                this.text_group.add(this.game.add.text(100, 100, text, {
-                    font: "32px Arial",
-                    fill: "#ff8000",
-                    align: "center"
-                }));
-                this.text_group.fixedToCamera = true;
+        if (this.player.data['life'] < 3) {
+            if (this.game.time.time < this.nextLife) {
+                if(this.text_group == null) {
+                    /*var text = "You must wait " + (this.nextLife - this.game.time.time) / 1000 + " more seconds.";
+                    this.text_group = this.game.add.group();
+                    this.text_group.add(this.game.add.text(100, 100, text, {
+                        font: "32px Arial",
+                        fill: "#ff8000",
+                        align: "center"
+                    }));
+                    this.text_group.fixedToCamera = true;
+                    this.time.events.add(2000, this.destroyText, this);*/
+                    this.createText("You must wait " + (this.nextLife - this.game.time.time) / 1000 + " more seconds.");
+                    return;
+                }
+            }
+            console.log("Köpa kaffe i baljan");
+            this.player.data['life'] = this.player.data['life'] + 1;
+            this.createText("Life increased to " + this.player.data['life'])
+            this.nextLife = this.game.time.time + this.baljanTime;
+        } else {
+            console.log("You already have full health");
+            if (this.text_group == null){
+                this.createText("You already have full health");
                 return;
             }
+        }
+    }
 
-            if (this.player.data['life'] < 3) {
-                console.log("Köpa kaffe i baljan");
-                this.player.data['life'] = this.player.data['life'] + 1;
-            } else {
-                console.log("You already have full health");
-            }
-            this.nextLife = this.game.time.time + this.baljanTime;
+    createText (text) {
+        this.text_group = this.game.add.group();
+        this.text_group.add(this.game.add.text(100, 100, text, {
+            font: "32px Arial",
+            fill: "#ff8000",
+            align: "center"
+        }));
+        this.text_group.fixedToCamera = true;
+        this.time.events.add(2000, this.destroyText, this);
+    }
+
+    destroyText (){
+        console.log("destroying text");
+        this.time.events.add(0, this.text_group.destroy, this.text_group);
+        this.text_group = null;
     }
     //Called when game is paused
     paused() {
