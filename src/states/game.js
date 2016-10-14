@@ -24,7 +24,7 @@ class Game extends Phaser.State {
         this.text_group = null;
 
 
-        this.weapons = [];
+        this.weapons = undefined;
         this.currentWeapon = 0;
         this.map = undefined;
         this.layer = undefined;
@@ -49,9 +49,14 @@ class Game extends Phaser.State {
 
     //Load operations (uses Loader), method called first
     preload() {
+        // Map
+        this.game.load.tilemap('map', 'assets/maze.json', null, Phaser.Tilemap.TILED_JSON);
+        this.game.load.image('tiles', 'assets/tiles.png');
+        this.game.load.image('tiled_school', 'assets/tiled_school.png');
+        
         // Prefab assets:
         // pencil
-        this.game.load.image('pencil', 'assets/pencil.png');
+        this.game.load.spritesheet('pencil', 'assets/pencil.png');
         // player
         this.game.load.spritesheet('student', 'assets/student.png', 40, 40);
         this.game.load.spritesheet('student2', 'assets/student2.png', 40, 40);
@@ -70,13 +75,24 @@ class Game extends Phaser.State {
 
         // Local assets
         this.game.load.spritesheet('dude2', 'assets/dude.png', 32, 48);
-        this.game.load.image('baljan', 'assets/baljan-logo.png');
+        this.game.load.spritesheet('baljan', 'assets/baljan-logo.png');
 
-        this.game.load.tilemap('map', 'assets/maze.json', null, Phaser.Tilemap.TILED_JSON);
-        this.game.load.image('tiles', 'assets/tiles.png');
-        this.game.load.image('tiled_school', 'assets/tiled_school.png');
-        this.game.load.image('invisibleBlock', 'assets/invisibleBlock.png');
+
+        this.game.load.spritesheet('invisibleBlock', 'assets/invisibleBlock.png');
         this.game.load.spritesheet('dude','assets/dude.png');
+    }
+    reset() {
+        this.killRate = 2000;
+        this.nextDeath = 0;
+        this.baljanTime = 60000;
+        this.nextLife = 0;
+        this.player = undefined;
+        this.enemies = undefined;
+        this.text_group = null;
+        this.weapons = undefined;
+        this.currentWeapon = 0;
+        this.night = false;
+        this.current_game_area = 0;
     }
 
     //Setup code, method called after preload
@@ -103,7 +119,7 @@ class Game extends Phaser.State {
         this.player = this.game.add.existing(new Player(this.game, 12*32, 244*32, this.input));
         this.game.data = {};
         this.game.data['player'] = this.player;
-        
+        //this.player.body.immovable = true;
         this.player.body.bounce.set(0.4);  // Can't set this in the player file for some retarded reason.
         
         this.game.camera.follow(this.player);
@@ -122,6 +138,7 @@ class Game extends Phaser.State {
         p_key.onDown.add(this.togglePause, this);
         
         // Add some weapons
+        this.weapons = [];
         this.weapons.push(new Weapon.SingleBullet(this.game));
         this.currentWeapon = 0;
 
@@ -223,13 +240,13 @@ class Game extends Phaser.State {
         this.game.physics.arcade.collide(this.player, this.baljan);
         this.game.physics.arcade.collide(this.enemies, this.enemies);
 
-        this.game.physics.arcade.overlap(this.weapons, this.enemies, this.collisionHandler, null, this);
-        this.game.physics.arcade.overlap(this.weapons, this.layer, this.collisionHandlerWall, null, this);
-        this.game.physics.arcade.overlap(this.weapons, this.doors, this.collisionHandlerDoor, null, this);
-        this.game.physics.arcade.overlap(this.weapons, this.fire_doors, this.collisionHandlerDoor, null, this);
-        this.game.physics.arcade.overlap(this.doors, this.player.halo, this.toggleDoor, null, this);
-        this.game.physics.arcade.overlap(this.player, this.boots, this.pickUpBoots, null, this);
-        this.game.physics.arcade.overlap(this.player.halo, this.baljan, this.shopInBaljan, null, this);
+        this.game.physics.arcade.collide(this.weapons, this.enemies, this.collisionHandler, null, this);
+        this.game.physics.arcade.collide(this.weapons, this.layer, this.collisionHandlerWall, null, this);
+        this.game.physics.arcade.collide(this.weapons, this.doors, this.collisionHandlerDoor, null, this);
+        this.game.physics.arcade.collide(this.weapons, this.fire_doors, this.collisionHandlerDoor, null, this);
+        this.game.physics.arcade.collide(this.doors, this.player.halo, this.toggleDoor, null, this);
+        this.game.physics.arcade.collide(this.player, this.boots, this.pickUpBoots, null, this);
+        this.game.physics.arcade.collide(this.player.halo, this.baljan, this.shopInBaljan, null, this);
         
         // Some keyboard action
         if (this.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
@@ -273,6 +290,7 @@ class Game extends Phaser.State {
                 this.night = false;
             }
         }
+
         var ga = GameAreas.game_areas[this.current_game_area];
         if (ga.get_enemies(this.enemies).length === 0){
             console.log("yay");
@@ -283,15 +301,13 @@ class Game extends Phaser.State {
                 console.log("Winner!");
             }
         }
-        //console.log(this.player.data.last_area);
 
         if (this.game.time.time >= this.nextDeath) {
             this.player.data['invincible'] = false;
         }
-        
+
         // Update night mode
         this.updateShadowTexture();
-        
     }
 
 
@@ -349,7 +365,7 @@ class Game extends Phaser.State {
                 door.open();
                 if(door.position.y < 247*32 && door.open()) {
                     console.log(door);
-                    this.player.data.immovable = false;
+                    this.player.data.immovable = true;
                     var in_door_frame = new Phaser.Point();
                     door.position.clone(in_door_frame);
                     console.log(door.data.size);
@@ -367,18 +383,20 @@ class Game extends Phaser.State {
                     var in_room = new Phaser.Point();
                     in_door_frame.clone(in_room);
                     if (door.data.open == "down") {
-                        in_room.add(0, -72);
+                        in_room.add(0, -80);
                     } else if (door.data.open == "up") {
-                        in_room.add(0, 72);
+                        in_room.add(0, 80);
                     } else if (door.data.open == "right") {
-                        in_room.add(-72, 0);
+                        in_room.add(-80, 0);
                     } else if (door.data.open == "left") {
-                        in_room.add(72, 0);
+                        in_room.add(80, 0);
                     }
-
                     var tween = this.game.add.tween(this.player).to(in_door_frame, 500, Phaser.Easing.Linear.None, true);
                     tween.onComplete.add(function () {
-                        this.game.add.tween(this.player).to(in_room, 300, Phaser.Easing.Linear.None, true);
+                        var tween2 = this.game.add.tween(this.player).to(in_room, 0, Phaser.Easing.Linear.None, true);
+                        tween2.onComplete.add(function () {
+                            this.player.data.immovable = false;
+                        }, this);
                     }, this);
                 }
             } else {
@@ -448,8 +466,7 @@ class Game extends Phaser.State {
         if (this.player.data['life'] <= 1){
             this.player.data['life'] -= 1;
             player.kill();
-            //this.game.state.restart(true, false); // This works like crap.
-            this.game.physics.arcade.isPaused = (!this.game.physics.arcade.isPaused);
+            this.game.state.restart(true, false);
         } else {
             this.player.data['life'] -= 1;
         }
@@ -546,7 +563,8 @@ class Game extends Phaser.State {
 
     //Called when switching to a new state
     shutdown() {
-
+        this.game.world.removeAll();
+        this.reset();
     }
 
 }

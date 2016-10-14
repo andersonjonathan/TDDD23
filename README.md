@@ -57,7 +57,6 @@ Tiled
 * Pause meny
 * Hjälp/kontroller
 * game over vy
-* Knuffa in spelaren i rummet när han öppnar dörren.
 * Hitta saker på toa. Fler saker.
 * Fler typer av enemies
 * Fler vapen
