@@ -132,7 +132,7 @@ class Game extends Phaser.State {
         this.boots = new Boots(this.game, this.map);
         this.boots.children.forEach(function(element, index, array){
             element.alpha = 0;
-        })
+        });
 
         // Who wants basic timing...
         this.game.time.advancedTiming = true;
@@ -230,7 +230,7 @@ class Game extends Phaser.State {
         }
 
         if (this.input.keyboard.isDown(Phaser.Keyboard.PAGE_DOWN)) {
-            console.log(GameAreas.xy_in_game_area(this.player.position.x/32, this.player.position.y/32))
+            this.player.data['immovable'] = true;
         }
 
         if (this.player.data.last_room == null){

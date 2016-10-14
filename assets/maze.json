@@ -232,8 +232,6 @@
                  "x":2049,
                  "y":7618
                 }],
-         "offsetx":10,
-         "offsety":-13,
          "opacity":1,
          "type":"objectgroup",
          "visible":true,
@@ -2378,7 +2376,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":500,
+ "nextobjectid":300,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tileheight":32,

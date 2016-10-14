@@ -13,6 +13,7 @@ class Player extends Phaser.Sprite {
 
     this.data['life'] = 3;
     this.data['invincible'] = false;
+    this.data['immovable'] = false;
     this.anchor.setTo(0.5, 0.5);
     this.halo = game.add.sprite(0, 0, 'invisibleBlock'); //invisibleBlock is a 1x1 px transparent png
     this.halo.anchor.setTo(0.5, 0.5);
@@ -31,7 +32,14 @@ class Player extends Phaser.Sprite {
     this.animations.add('rightup', [12, 13, 17], 10, true);
     this.animations.add('leftdown', [14, 15, 16], 10, true);
     this.animations.add('rightdown', [19, 20, 23], 10, true);
-    this.animations.add('flashing', [5, 24], 10, true);
+    this.animations.add('flashing_left', [9, 24, 10, 24, 6, 24], 10, true);
+    this.animations.add('flashing_right', [11, 24, 7, 24, 8, 24], 10, true);
+    this.animations.add('flashing_up', [5, 24, 0, 24, 1, 24], 10, true);
+    this.animations.add('flashing_down', [2, 24, 3, 24, 4, 24], 10, true);
+    this.animations.add('flashing_leftup', [18, 24, 21, 24, 22, 24], 10, true);
+    this.animations.add('flashing_rightup', [12, 24, 13, 24, 17, 24], 10, true);
+    this.animations.add('flashing_leftdown', [14, 24, 15, 24, 16, 24], 10, true);
+    this.animations.add('flashing_rightdown', [19, 24, 20, 24, 23, 24], 10, true);
 
     this.data.original_speed = 320;
     this.data.speed = 320;
@@ -94,6 +102,12 @@ class Player extends Phaser.Sprite {
 
 
   move(){
+    if (this.data['immovable']){
+      this.body.velocity.x = 0;
+      this.body.velocity.y = 0;
+      this.animations.stop();
+      return;
+    }
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
     var diagonal_penalty = 1;
@@ -133,31 +147,33 @@ class Player extends Phaser.Sprite {
     }
 
     if (this.game.time.time > this.nextUpdate) {
+      var animation_prefix = '';
       if (this.data['invincible'] == true) {
-        this.animations.play('flashing');
-      } else if (this.cursors.up.isDown && this.cursors.right.isDown){
-        this.animations.play('rightup');
+        animation_prefix = 'flashing_';
+      }
+      if (this.cursors.up.isDown && this.cursors.right.isDown){
+        this.animations.play(animation_prefix + 'rightup');
         this.data.facing = "ne";
       } else if (this.cursors.up.isDown && this.cursors.left.isDown) {
-        this.animations.play('leftup');
+        this.animations.play(animation_prefix + 'leftup');
         this.data.facing = "nw";
       } else if (this.cursors.up.isDown) {
-        this.animations.play('up');
+        this.animations.play(animation_prefix + 'up');
         this.data.facing = "n";
       } else if (this.cursors.down.isDown && this.cursors.right.isDown) {
-        this.animations.play('rightdown');
+        this.animations.play(animation_prefix + 'rightdown');
         this.data.facing = "se";
       } else if (this.cursors.down.isDown && this.cursors.left.isDown) {
-        this.animations.play('leftdown');
+        this.animations.play(animation_prefix + 'leftdown');
         this.data.facing = "sw";
       } else if (this.cursors.down.isDown) {
-        this.animations.play('down');
+        this.animations.play(animation_prefix + 'down');
         this.data.facing = "s";
       } else if (this.cursors.right.isDown) {
-        this.animations.play('right');
+        this.animations.play(animation_prefix + 'right');
         this.data.facing = "e";
       } else if (this.cursors.left.isDown) {
-        this.animations.play('left');
+        this.animations.play(animation_prefix + 'left');
         this.data.facing = "w";
       }
       this.nextUpdate = this.game.time.time + this.updateRate;

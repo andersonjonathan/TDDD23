@@ -58,7 +58,6 @@ Tiled
 * Hjälp/kontroller
 * game over vy
 * Knuffa in spelaren i rummet när han öppnar dörren.
-* Branddörrar för att låsa delar av huset
 * Hitta saker på toa. Fler saker.
 * Fler typer av enemies
 * Fler vapen
