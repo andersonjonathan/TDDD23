@@ -4,8 +4,10 @@ import Doors from '../prefabs/doors';
 import Player from '../prefabs/player';
 import Rooms from '../prefabs/rooms';
 import Enemies from '../prefabs/enemies';
+import Ordo from '../prefabs/ordo';
 import GameAreas from '../prefabs/game_areas';
 import FireDoors from '../prefabs/fire_doors';
+import OrdoBullet from '../prefabs/ordo_bullet';
 
 import Boots from '../prefabs/boots';
 import Baljan from '../prefabs/baljan';
@@ -22,9 +24,11 @@ class Game extends Phaser.State {
         this.player = undefined;
         this.enemies = undefined;
         this.text_group = null;
-
+        this.enemyBullet = undefined;
+        this.firingTimer = 0;
 
         this.weapons = [];
+        this.enemyWeapons = [];
         this.currentWeapon = 0;
         this.map = undefined;
         this.layer = undefined;
@@ -44,7 +48,7 @@ class Game extends Phaser.State {
         this.night = false;
         this.release_N = true;
         this.release_A = true;
-        this.current_game_area = 0;
+        this.current_game_area = 10;
     }
 
     //Load operations (uses Loader), method called first
@@ -71,6 +75,8 @@ class Game extends Phaser.State {
         // Local assets
         this.game.load.spritesheet('dude2', 'assets/dude.png', 32, 48);
         this.game.load.image('baljan', 'assets/baljan-logo.png');
+        this.game.load.image('ordo', 'assets/ordo-boss.png');
+        this.game.load.image('ordoBullet', 'assets/math_1.png');
 
         this.game.load.tilemap('map', 'assets/maze.json', null, Phaser.Tilemap.TILED_JSON);
         this.game.load.image('tiles', 'assets/tiles.png');
@@ -125,8 +131,11 @@ class Game extends Phaser.State {
         this.weapons.push(new Weapon.SingleBullet(this.game));
         this.currentWeapon = 0;
 
+        this.ordoBullet = new OrdoBullet(this.game, this.map);
+
         // Enemies
         this.enemies = new Enemies(this.game, this.map, this.player);
+        this.ordo = new Ordo(this.game, this.map, this.player);
 
         // Doors
         this.doors = new Doors(this.game, this.map);
@@ -216,14 +225,19 @@ class Game extends Phaser.State {
         this.game.physics.arcade.collide(this.player, this.layer);
         this.game.physics.arcade.collide(this.player, this.enemies, this.collisionHandlerPlayerEnemies, null, this);
         this.game.physics.arcade.collide(this.enemies, this.layer, this.collisionHandlerEnemies, null, this);
+        this.game.physics.arcade.collide(this.ordo, this.layer, this.collisionHandlerEnemies, null, this);
+        this.game.physics.arcade.collide(this.player, this.ordo, this.collisionHandlerPlayerEnemies, null, this);
         this.game.physics.arcade.collide(this.player, this.doors);
         this.game.physics.arcade.collide(this.enemies, this.doors);
+        this.game.physics.arcade.collide(this.ordo, this.doors);
         this.game.physics.arcade.collide(this.player, this.fire_doors);
         this.game.physics.arcade.collide(this.enemies, this.fire_doors);
+        this.game.physics.arcade.collide(this.ordo, this.fire_doors);
         this.game.physics.arcade.collide(this.player, this.baljan);
         this.game.physics.arcade.collide(this.enemies, this.enemies);
 
         this.game.physics.arcade.overlap(this.weapons, this.enemies, this.collisionHandler, null, this);
+        this.game.physics.arcade.overlap(this.weapons, this.ordo, this.collisionHandler, null, this);
         this.game.physics.arcade.overlap(this.weapons, this.layer, this.collisionHandlerWall, null, this);
         this.game.physics.arcade.overlap(this.weapons, this.doors, this.collisionHandlerDoor, null, this);
         this.game.physics.arcade.overlap(this.weapons, this.fire_doors, this.collisionHandlerDoor, null, this);
@@ -234,6 +248,19 @@ class Game extends Phaser.State {
         // Some keyboard action
         if (this.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
             this.weapons[this.currentWeapon].fire(this.player, this);
+        }
+
+        if (this.input.keyboard.isDown(Phaser.Keyboard.L)){
+            //this.enemyWeapons[0].fire(this.ordo, this.player);
+            /*this.ordo.children.forEach(function (element, index, array){
+              console.log(element.position.x/32);
+            });*/
+            //console.log(this.ordo.children[0].position.x/32);
+            if (this.game.time.time > this.firingTimer)
+                {
+                    this.enemyFires();
+                }
+
         }
 
         if (this.input.keyboard.isDown(Phaser.Keyboard.N)) {
@@ -291,7 +318,12 @@ class Game extends Phaser.State {
         
         // Update night mode
         this.updateShadowTexture();
-        
+
+        //Ordo firing
+       /* if (this.game.time.time > this.firingTimer)
+        {
+            this.ordoFires();
+        }*/
     }
 
 
@@ -523,9 +555,29 @@ class Game extends Phaser.State {
         //this.text_group.destroy();
         //this.text_group = null;
     }
+
+
     //Called when game is paused
     paused() {
         console.log("PAAAAUSE!");
+    }
+
+    enemyFires () {
+
+        //  Grab the first bullet we can from the pool
+        //this.ordoBullet = this.ordoBullet.getFirstExists(false);
+        this.ordoBullet = true;
+
+        if (this.ordoBullet)
+        {
+
+            // And fire the bullet from this enemy
+            this.ordoBullet.reset(this.ordo.children[0].x/32, this.ordo.children[0].y/32);
+
+            this.game.physics.arcade.moveToObject(this.ordoBullet, this.player, 120);
+            this.firingTimer = this.game.time.time + 2000;
+        }
+
     }
 
     //You're able to do any final post-processing style effects here.
