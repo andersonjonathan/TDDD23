@@ -3,8 +3,8 @@
  */
 import GameArea from '../prefabs/game_area';
 var game_areas = [
-    new GameArea(0, 46, 233, 54, 239, "PG1"),
-    new GameArea(1, 37, 233, 44, 239, "PG2"),
+    new GameArea(0, 9, 221, 36, 247, "Tutorial"),
+    //new GameArea(1, 37, 233, 44, 239, "PG2"),
 ];
 
 class GameAreas{

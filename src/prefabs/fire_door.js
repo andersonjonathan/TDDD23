@@ -25,7 +25,7 @@ class FireDoor extends Phaser.Sprite {
                 break;
             }
         }
-        this.locked = false;
+        this.locked = true;
     }
 
     open() {

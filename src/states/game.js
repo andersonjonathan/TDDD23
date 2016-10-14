@@ -88,7 +88,7 @@ class Game extends Phaser.State {
         }
 
         // Add the player
-        this.player = this.game.add.existing(new Player(this.game, 1886, 8090, this.input));
+        this.player = this.game.add.existing(new Player(this.game, 12*32, 244*32, this.input));
         
         this.player.body.bounce.set(0.8);  // Can't set this in the player file for some retarded reason.
         
@@ -209,9 +209,19 @@ class Game extends Phaser.State {
                 this.player.data.last_room.unlock();
                 this.player.data.last_room.open();
             }
-
         }
-        
+        if (this.player.data.last_area != null){
+
+            var enemies_in_area = this.player.data.last_area.get_enemies(this.enemies);
+            if (enemies_in_area.length !== 0){
+                this.player.data.last_area.lock();
+                this.player.data.last_area.close();
+            } else {
+                this.player.data.last_area.unlock();
+                this.player.data.last_area.open();
+            }
+        }
+        //console.log(this.player.data.last_area);
         // Update night mode
         this.updateShadowTexture();
         
@@ -363,6 +373,9 @@ class Game extends Phaser.State {
         this.game.debug.text(this.game.time.fps, 2, 14, "#00ff00");
         if (this.player.data.last_room != null){
             this.game.debug.text(this.player.data.last_room.name, 62, 14, "#00ff00");
+        }
+        if (this.player.data.last_area != null){
+            this.game.debug.text(this.player.data.last_area.name, 162, 14, "#00ff00");
         }
 
 

@@ -10,7 +10,7 @@ class GameArea{
         this.y1 = y1;
         this.name = name;
         this.fire_doors = [];
-        this.locked = false;
+        this.locked = true;
     }
     get_enemies(all_enemies) {
         var tmp = [];

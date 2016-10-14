@@ -1,4 +1,5 @@
 import Rooms from '../prefabs/rooms';
+import GameAreas from '../prefabs/game_areas';
 //Documentation for Phaser's (2.5.0) states:: phaser.io/docs/2.5.0/Phaser.State.html
 class Player extends Phaser.Sprite {
 
@@ -47,6 +48,8 @@ class Player extends Phaser.Sprite {
     this.nextUpdate = 0;
     this.updateRate = 20;
     this.data.last_room = null;
+    this.data.last_area = null;
+
 
   }
 
@@ -84,6 +87,7 @@ class Player extends Phaser.Sprite {
     }
     this.move();
     this.in_room();
+    this.in_game_area();
   }
 
 
@@ -170,6 +174,17 @@ class Player extends Phaser.Sprite {
     } else {
       if (!(this.data.last_room.x0 <= x && x <= this.data.last_room.x1 && this.data.last_room.y0 <= y && y <= this.data.last_room.y1)){
         this.data.last_room = null;
+      }
+    }
+  }
+  in_game_area(){
+    var x = Math.round(this.position.x / 32);
+    var y = Math.round(this.position.y / 32);
+    if (this.data.last_area == null){
+      this.data.last_area = GameAreas.xy_in_game_area(x, y);
+    } else {
+      if (!(this.data.last_area.x0 <= x && x <= this.data.last_area.x1 && this.data.last_area.y0 <= y && y <= this.data.last_area.y1)){
+        this.data.last_area = null;
       }
     }
   }
