@@ -1,4 +1,3 @@
-//Documentation for Phaser's (2.5.0) states:: phaser.io/docs/2.5.0/Phaser.State.html
 import Weapon from '../prefabs/weapon';
 import Doors from '../prefabs/doors';
 import Player from '../prefabs/player';
@@ -45,6 +44,9 @@ class Game extends Phaser.State {
         this.release_N = true;
         this.release_A = true;
         this.current_game_area = 0;
+        this.newbie = {
+            'open_door': true,
+        };
     }
 
     //Load operations (uses Loader), method called first
@@ -191,7 +193,6 @@ class Game extends Phaser.State {
         if (this.current_game_area !== 0){
 
             for (var i = 0; i < this.current_game_area; i++){
-                console.log(i);
                 var ga = GameAreas.game_areas[i];
                 var ga_enemies = ga.get_enemies(this.enemies);
                 for (var j = 0; j < ga_enemies.length; j++){
@@ -293,7 +294,6 @@ class Game extends Phaser.State {
 
         var ga = GameAreas.game_areas[this.current_game_area];
         if (ga.get_enemies(this.enemies).length === 0){
-            console.log("yay");
             ga.unlock();
             ga.open();
             this.current_game_area += 1;
@@ -351,6 +351,10 @@ class Game extends Phaser.State {
     };
 
     toggleDoor(halo, door){
+        if(this.newbie.open_door){
+            this.newbie.open_door = false;
+            this.createText("Press A to open.");
+        }
         // Open or close the door.
         if (this.player.data.last_room != null){
             if (this.player.data.last_room.name == "Toalett 1"){
@@ -364,11 +368,10 @@ class Game extends Phaser.State {
             if (door.angle == 0){
                 door.open();
                 if(door.position.y < 247*32 && door.open()) {
-                    console.log(door);
+
                     this.player.data.immovable = true;
                     var in_door_frame = new Phaser.Point();
                     door.position.clone(in_door_frame);
-                    console.log(door.data.size);
                     if(door.data.hinge == "right"){
                         in_door_frame.subtract(door.data['size'].x / 2, 0);
                     } else {
@@ -384,11 +387,15 @@ class Game extends Phaser.State {
                     in_door_frame.clone(in_room);
                     if (door.data.open == "down") {
                         in_room.add(0, -80);
+                        this.player.animations.play('up');
                     } else if (door.data.open == "up") {
                         in_room.add(0, 80);
+                        this.player.animations.play('down');
                     } else if (door.data.open == "right") {
+                        this.player.animations.play('left');
                         in_room.add(-80, 0);
                     } else if (door.data.open == "left") {
+                        this.player.animations.play('right');
                         in_room.add(80, 0);
                     }
                     var tween = this.game.add.tween(this.player).to(in_door_frame, 500, Phaser.Easing.Linear.None, true);
@@ -396,6 +403,9 @@ class Game extends Phaser.State {
                         var tween2 = this.game.add.tween(this.player).to(in_room, 0, Phaser.Easing.Linear.None, true);
                         tween2.onComplete.add(function () {
                             this.player.data.immovable = false;
+                            if (door.data.room !== this.player.data.last_room.id){
+                                console.log("This door goes the the wrong room ", door.data.id)
+                            }
                         }, this);
                     }, this);
                 }
@@ -405,7 +415,6 @@ class Game extends Phaser.State {
                     door.close();
                 }
             }
-            //console.log(door.data.room);
             this.release_A = false;
         } else {
             this.release_A = true
@@ -485,7 +494,6 @@ class Game extends Phaser.State {
                 // Close the door
                 this.addLife();
             }
-            //console.log(door.data.room);
             this.release_B = false;
         } else {
             this.release_B = true
@@ -524,11 +532,13 @@ class Game extends Phaser.State {
 
     createText (text) {
         this.text_group = this.game.add.group();
-        this.text_group.add(this.game.add.text(100, 100, text, {
+        var text = this.game.add.text(400, 400, text, {
             font: "32px Arial",
             fill: "#ff8000",
             align: "center"
-        }));
+        });
+        this.text_group.add(text);
+        text.anchor.set(0.5);
         this.text_group.fixedToCamera = true;
         this.time.events.add(2000, this.destroyText, this);
     }

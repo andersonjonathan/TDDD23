@@ -85,7 +85,34 @@ var rooms = [
     new Room(79, 293, 23, 312, 40, "U2"),
     new Room(80, 284, 23, 291, 31, "Kök U"),
     new Room(81, 207, 68, 270, 104, "Innergård"),
-    new Room(82, 63, 235, 66, 239, "Toalett 1")
+    new Room(82, 62, 234, 67, 240, "Toalett 1"),
+    new Room(83, 62, 217, 67, 221, "Toalett 2"),
+    new Room(84, 62, 211, 67, 217, "Toalett 3"),
+    new Room(85, 62, 202, 67, 207, "Toalett 4"),
+    new Room(86, 29, 189, 32, 193, "Toalett 5"),
+    new Room(87, 32, 189, 36, 193, "Toalett 6"),
+    new Room(88, 62, 189, 67, 195, "Toalett 7"),
+    new Room(89, 62, 157, 67, 163, "Toalett 8"),
+    new Room(90, 134, 234, 139, 240, "Toalett 9"),
+    new Room(91, 134, 212, 139, 221, "Toalett 10"),
+    new Room(92, 134, 202, 139, 208, "Toalett 11"),
+    new Room(93, 134, 165, 139, 169, "Toalett 12"),
+    new Room(94, 134, 157, 139, 161, "Toalett 13"),
+    new Room(95, 134, 142, 139, 150, "Toalett 14"),
+    new Room(96, 134, 112, 139, 121, "Toalett 15"),
+    new Room(97,  206, 145, 211, 150, "Toalett 16"),
+    new Room(98,  206, 134, 211, 141, "Toalett 17"),
+    new Room(99,  206, 112, 211, 118, "Toalett 18"),
+    new Room(100, 206, 48, 211, 54, "Toalett 19"),
+    new Room(101, 206, 36, 211, 41, "Toalett 20"),
+    new Room(102, 271, 34, 276, 41, "Toalett 21"),
+    new Room(103, 271, 48, 276, 53, "Toalett 22"),
+    new Room(104, 271, 131, 276, 140, "Toalett 23"),
+    new Room(105, 271, 144, 276, 150, "Toalett 24"),
+    new Room(106, 271, 157, 276, 164, "Toalett 25"),
+    new Room(107, 271, 168, 276, 176, "Toalett 26"),
+    new Room(108, 271, 176, 276, 185, "Toalett 27"),
+    new Room(109, 271, 189, 276, 195, "Toalett 28"),
 ];
 
 class Rooms{
@@ -97,14 +124,10 @@ class Rooms{
     }
     
     static set_doors(doors){
-        this.rooms.forEach(function (room, index, array) {
-            doors.children.forEach(function (element, index, array) {
-                var x = element.position.x/32;
-                var y = element.position.y/32;
-                if (room.x0-2 <= x && x <= room.x1+2 && room.y0-2 <= y && y <= room.y1+2){
-                    room.doors.push(element);
-                }
-            });
+        doors.children.forEach(function (door, index, array) {
+            if (door.data.room !== null){
+                Rooms.rooms[door.data.room].doors.push(door);
+            }
         });
     }
     

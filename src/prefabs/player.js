@@ -105,7 +105,6 @@ class Player extends Phaser.Sprite {
     if (this.data['immovable']){
       this.body.velocity.x = 0;
       this.body.velocity.y = 0;
-      this.animations.stop();
       return;
     }
     this.body.velocity.x = 0;
