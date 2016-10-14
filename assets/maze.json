@@ -159,7 +159,7 @@
                  "width":32,
                  "x":641.757575757576,
                  "y":6905.27272727273
-                },
+                }, 
                 {
                  "gid":150,
                  "height":32,
@@ -171,7 +171,7 @@
                  "width":32,
                  "x":7468.84848484848,
                  "y":7691.75757575758
-                },
+                }, 
                 {
                  "gid":150,
                  "height":32,
@@ -183,7 +183,7 @@
                  "width":32,
                  "x":8032.48484848485,
                  "y":5346.30303030303
-                },
+                }, 
                 {
                  "gid":150,
                  "height":32,
@@ -195,7 +195,7 @@
                  "width":32,
                  "x":9601.33333333333,
                  "y":3622.66666666667
-                },
+                }, 
                 {
                  "gid":150,
                  "height":32,
@@ -207,7 +207,7 @@
                  "width":32,
                  "x":9682.66666666667,
                  "y":1014.66666666667
-                },
+                }, 
                 {
                  "gid":150,
                  "height":32,
@@ -219,7 +219,7 @@
                  "width":32,
                  "x":7514.66666666667,
                  "y":934.666666666667
-                },
+                }, 
                 {
                  "gid":111,
                  "height":32,
@@ -2378,7 +2378,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":264,
+ "nextobjectid":500,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tileheight":32,
@@ -2616,7 +2616,7 @@
          "tilecount":1,
          "tileheight":96,
          "tilewidth":5
-        },
+        }, 
         {
          "columns":1,
          "firstgid":413,
@@ -2629,7 +2629,7 @@
          "tilecount":1,
          "tileheight":5,
          "tilewidth":96
-        },
+        }, 
         {
          "columns":1,
          "firstgid":414,
@@ -2642,7 +2642,7 @@
          "tilecount":1,
          "tileheight":5,
          "tilewidth":96
-        },
+        }, 
         {
          "columns":1,
          "firstgid":415,
@@ -2655,7 +2655,7 @@
          "tilecount":1,
          "tileheight":5,
          "tilewidth":96
-        },
+        }, 
         {
          "columns":1,
          "firstgid":416,
@@ -2668,7 +2668,7 @@
          "tilecount":1,
          "tileheight":5,
          "tilewidth":96
-        },
+        }, 
         {
          "columns":1,
          "firstgid":417,
@@ -2681,7 +2681,7 @@
          "tilecount":1,
          "tileheight":96,
          "tilewidth":5
-        },
+        }, 
         {
          "columns":1,
          "firstgid":418,
@@ -2694,7 +2694,7 @@
          "tilecount":1,
          "tileheight":96,
          "tilewidth":5
-        },
+        }, 
         {
          "columns":1,
          "firstgid":419,
@@ -2707,7 +2707,7 @@
          "tilecount":1,
          "tileheight":96,
          "tilewidth":5
-        },
+        }, 
         {
          "columns":1,
          "firstgid":420,
