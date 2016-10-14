@@ -21,7 +21,6 @@ class Game extends Phaser.State {
 
         this.weapons = [];
         this.currentWeapon = 0;
-        this.weaponName = null;
         this.map = undefined;
         this.layer = undefined;
         this.solid_tiles = [17, 45, 59, 28];
@@ -87,9 +86,9 @@ class Game extends Phaser.State {
 
         this.layer = this.map.createLayer('Tile Layer 1');
 
-        for (var i = 0; i < this.solid_tiles.length; i++)
+        for (var t = 0; t < this.solid_tiles.length; t++)
         {
-            this.map.setCollision(this.solid_tiles[i], true, this.layer);
+            this.map.setCollision(this.solid_tiles[t], true, this.layer);
         }
 
         // Add the player
@@ -108,7 +107,6 @@ class Game extends Phaser.State {
             Phaser.Keyboard.R,
             Phaser.Keyboard.N,
             Phaser.Keyboard.PAGE_DOWN, // only for debugging
-            Phaser.Keyboard.M, // only for debugging
         ]);
         
         // Add listener to the p button for pausing
@@ -165,7 +163,7 @@ class Game extends Phaser.State {
             for (var i = 0; i < this.current_game_area; i++){
                 console.log(i);
                 var ga = GameAreas.game_areas[i];
-                var ga_enemies = ga.get_enemies(this.enemies)
+                var ga_enemies = ga.get_enemies(this.enemies);
                 for (var j = 0; j < ga_enemies.length; j++){
                     ga_enemies[j]['data']['life'] = 0;
                     ga_enemies[j].kill();
@@ -243,7 +241,7 @@ class Game extends Phaser.State {
                 if (maybeNight == 3) {
                     this.night = true;
                 }
-            };
+            }
         }
 
         if (this.player.data.last_room != null){
@@ -332,6 +330,40 @@ class Game extends Phaser.State {
         {
             if (door.angle == 0){
                 door.open();
+                if(door.position.y < 247*32 && door.open()) {
+                    console.log(door);
+                    this.player.data.immovable = false;
+                    var in_door_frame = new Phaser.Point();
+                    door.position.clone(in_door_frame);
+                    console.log(door.data.size);
+                    if(door.data.hinge == "right"){
+                        in_door_frame.subtract(door.data['size'].x / 2, 0);
+                    } else {
+                        in_door_frame.add(door.data['size'].x / 2, 0);
+                    }
+                    if(door.data.hinge == "down"){
+                        in_door_frame.subtract(0, door.data['size'].y / 2);
+                    } else {
+                        in_door_frame.add(0, door.data['size'].y / 2);
+                    }
+
+                    var in_room = new Phaser.Point();
+                    in_door_frame.clone(in_room);
+                    if (door.data.open == "down") {
+                        in_room.add(0, -72);
+                    } else if (door.data.open == "up") {
+                        in_room.add(0, 72);
+                    } else if (door.data.open == "right") {
+                        in_room.add(-72, 0);
+                    } else if (door.data.open == "left") {
+                        in_room.add(72, 0);
+                    }
+
+                    var tween = this.game.add.tween(this.player).to(in_door_frame, 500, Phaser.Easing.Linear.None, true);
+                    tween.onComplete.add(function () {
+                        this.game.add.tween(this.player).to(in_room, 300, Phaser.Easing.Linear.None, true);
+                    }, this);
+                }
             } else {
                 if (this.release_A) {
                     // Close the door

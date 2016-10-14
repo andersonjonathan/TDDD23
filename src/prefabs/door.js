@@ -9,10 +9,10 @@ class Door extends Phaser.Sprite {
     
     this.anchor.setTo(0, 0);
     // Store which room it goes to.
-    var x = this.position.x/32;
-    var y = this.position.y/32;
+    var tile_x = this.position.x/32;
+    var tile_y = this.position.y/32;
     var potential_rooms = [
-      Rooms.xy_in_room(x, y) 
+      Rooms.xy_in_room(tile_x, tile_y) 
     ];
     this.data.room = null;
     for (var i = 0; i < potential_rooms.length; i++) {
@@ -22,6 +22,8 @@ class Door extends Phaser.Sprite {
       }
     }
     this.locked = false;
+    this.opening = false;
+    this.closing = false;
   }
 
   open() {
@@ -42,14 +44,27 @@ class Door extends Phaser.Sprite {
     } else if ((this.data['hinge'] == "up" && this.data['open'] == "left")||(this.data['hinge'] == "down" && this.data['open'] == "right")){
       xsign = -1;
     }
-    this.game.add.tween(this).to( { angle: angle }, 1000, Phaser.Easing.Linear.None, true);
-    this.body.setSize(this.data.size.y, this.data.size.x, this.data.size.y*xsign, this.data.size.x*ysign);
+    if (!this.opening){
+      this.opening = true;
+      var tween = this.game.add.tween(this).to( { angle: angle }, 1000, Phaser.Easing.Linear.None, true);
+      tween.onComplete.add(function () {
+        this.opening = false;
+      }, this);
+      this.body.setSize(this.data.size.y, this.data.size.x, this.data.size.y*xsign, this.data.size.x*ysign);
+    }
+
     return true;
   }
 
   close(){
-    this.game.add.tween(this).to({angle: 0}, 1000, Phaser.Easing.Linear.None, true);
-    this.body.setSize(this.data.size.x, this.data.size.y, 0, 0);
+    if (!this.closing) {
+      this.closing = true;
+      var tween = this.game.add.tween(this).to({angle: 0}, 500, Phaser.Easing.Linear.None, true);
+      tween.onComplete.add(function () {
+        this.closing = false;
+      }, this);
+      this.body.setSize(this.data.size.x, this.data.size.y, 0, 0);
+    }
   }
 
   //Code ran on each frame of game
