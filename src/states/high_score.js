@@ -1,3 +1,5 @@
+import ajax from '../utils/ajax';
+
 class HighScore extends Phaser.State {
 
   constructor() {
@@ -62,6 +64,36 @@ class HighScore extends Phaser.State {
       this.game.data.settings.sound.bg_music.loopFull();
       this.game.data.settings.sound.bg_music.volume = this.game.data.settings.sound.music;
     }
+    var _this = this;
+    ajax.get('http://liucrawler-skogsjonis.rhcloud.com/api/v1/get/', null, function (data) {
+      var data_obj = JSON.parse(data);
+      var score_list = _this.game.add.group();
+        var text = undefined;
+        for (let obj in data_obj){
+            text = _this.game.add.text(150, 100+30*obj, parseInt(obj)+1, {
+              font: "22px Arial",
+              fill: "#ffffff"
+            });
+            text.anchor.set(1, 0);
+            score_list.add(text);
+            text = _this.game.add.text(200, 100+30*obj, data_obj[obj].fields.name, {
+              font: "22px Arial",
+              fill: "#ffffff"
+            });
+            text.anchor.set(0, 0);
+            score_list.add(text);
+            text = _this.game.add.text(650, 100+30*obj, data_obj[obj].fields.score, {
+              font: "22px Arial",
+              fill: "#ffffff"
+            });
+            text.anchor.set(1, 0);
+            score_list.add(text);
+
+
+      }
+      score_list.fixedToCamera = true;
+    }, true);
+
   }
 
   toggleMusic (music) {

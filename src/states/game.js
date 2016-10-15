@@ -8,6 +8,7 @@ import FireDoors from '../prefabs/fire_doors';
 
 import Boots from '../prefabs/boots';
 import Baljan from '../prefabs/baljan';
+import ajax from '../utils/ajax';
 
 class Game extends Phaser.State {
 
@@ -22,6 +23,9 @@ class Game extends Phaser.State {
         this.enemies = undefined;
         this.text_group = null;
         this.pause_menu_data = undefined;
+
+        this.removePoint = 0;
+        this.removeRate = 1000;
 
         this.weapons = undefined;
         this.currentWeapon = 0;
@@ -54,6 +58,8 @@ class Game extends Phaser.State {
         };
         this.current_game_area = 0;
         this.background_sound = undefined;
+        this.final_score = 0;
+        this.score = 0;
     }
 
     //Load operations (uses Loader), method called first
@@ -117,6 +123,10 @@ class Game extends Phaser.State {
         this.night = false;
         this.current_game_area = 0;
         this.pause_menu_data = undefined;
+        this.final_score = 0;
+        this.score = 0;
+        this.removePoint = 0;
+        this.removeRate = 1000;
     }
     init(settings){
         this.game.data = {};
@@ -207,28 +217,12 @@ class Game extends Phaser.State {
 
         //Baljan
         this.baljan = new Baljan(this.game, this.map);
-        //this.baljanKey = this.game.input.keyboard.addKey(Phaser.Keyboard.B);
 
-
-        // Who wants basic timing...
         this.game.time.advancedTiming = true;
-        
-        // start for helptext texts:
-        // this.text_group = this.game.add.group();
-        // this.text_group.add(this.game.add.text(400, 300, "- You have clicked -\n0 times !", {
-        //     font: "65px Arial",
-        //     fill: "#ff0044",
-        //     align: "center"
-        // }));
-        // this.text_group.fixedToCamera = true;
-        // console.log(this.text_group);
-        
-        // Night Mode settings:
-        //this.shadow_overlay = this.game.add.sprite(0, 0, 'invisibleBlock');
+
         this.game.stage.backgroundColor = 0x4488cc;
         this.shadowTexture = this.game.add.bitmapData(this.game.width, this.game.height);
-        //this.shadow_overlay.fixedToCamera = true;
-        //this.shadow_overlay.addChild(this.shadowTexture);
+
         // Create an object that will use the bitmap as a texture
         var lightSprite = this.game.add.image(0, 0, this.shadowTexture);
         lightSprite.fixedToCamera = true;
@@ -275,6 +269,7 @@ class Game extends Phaser.State {
         sfx.inputEnabled = true;
         sfx.events.onInputDown.add(this.toggleSFX, this);
 
+        this.game.add.plugin(Fabrique.Plugins.InputField);
     }
 
     toggleMusic (music) {
@@ -327,6 +322,62 @@ class Game extends Phaser.State {
         this.pause_menu_data[2].fixedToCamera = true;
         this.pause_menu_data[3].fixedToCamera = true;
         this.pause_menu_data[4].fixedToCamera = true;
+
+    }
+
+    highScore(){
+        this.score += 1000 * this.player.data.life;
+        this.final_score = this.score;
+        this.game.physics.arcade.isPaused = true;
+        this.player.data.immovable = true;
+        console.log("PAAAAUSE!");
+        for (let menu_item in this.pause_menu_data){
+            this.pause_menu_data[menu_item].destroy();
+        }
+        this.pause_menu_data = undefined;
+        this.pause_menu_data = [];
+
+        this.pause_menu_data.push(this.game.add.sprite(280, 200, '54d8e0'));
+        this.pause_menu_data[0].scale.setTo(240, 195);
+        this.pause_menu_data[0].fixedToCamera = true;
+        this.pause_menu_data[0].alpha = 0.95;
+        this.pause_menu_data.push(this.game.add.button(300, 340, 'continue', this.reportHighScore, this, 1, 0, 0));
+        this.pause_menu_data.push(this.game.add.inputField(300, 280, {
+            font: '18px Arial',
+            fill: '#212121',
+            fontWeight: 'bold',
+            width: 182,
+            padding: 8,
+            borderWidth: 1,
+            borderColor: '#000',
+            borderRadius: 6,
+            placeHolder: 'Name'
+        }));
+
+        this.pause_menu_data.push(this.game.add.group());
+        var text = this.game.add.text(400, 220, "Game Over!", {
+            font: "18px Arial",
+            fill: "#ffffff",
+            align: "center"
+        });
+        text.anchor.set(0.5, 0);
+        this.pause_menu_data[3].add(text);
+        this.pause_menu_data[1].fixedToCamera = true;
+        this.pause_menu_data[2].fixedToCamera = true;
+        this.pause_menu_data[3].fixedToCamera = true;
+
+    }
+    reportHighScore(){
+        console.log(this.pause_menu_data[2].value + ": " + this.final_score);
+        // store this data somewhere.
+        var _this = this;
+        ajax.post(
+            'http://liucrawler-skogsjonis.rhcloud.com/api/v1/add/',
+            {'name': this.pause_menu_data[2].value,
+            'score': this.final_score}, function () {
+                _this.toMenu();
+            }, true);
+
     }
     resumeFromPause(){
         console.log("RESUME!!!");
@@ -340,6 +391,9 @@ class Game extends Phaser.State {
 
     togglePause() {
         // Toggle pause on/off
+        if (this.player.data.life == 0){
+            this.toMenu();
+        }
         this.player.animations.stop();
         this.enemies.children.forEach(function(element, index, array){
             element.animations.stop();
@@ -428,6 +482,8 @@ class Game extends Phaser.State {
             ga.open();
             this.current_game_area += 1;
             if (this.current_game_area == 12){
+                player.kill();
+                this.highScore();
                 console.log("Winner!");
             }
         }
@@ -436,6 +492,10 @@ class Game extends Phaser.State {
             this.player.data['invincible'] = false;
         }
 
+        if (this.game.time.time >= this.removePoint && this.score !== 0) {
+            this.score -= 1;
+            this.removePoint = this.game.time.time + this.removeRate;
+        }
         // Update night mode
         this.updateShadowTexture();
     }
@@ -580,6 +640,7 @@ class Game extends Phaser.State {
         if(enemy.data['life'] <= 1){
             enemy.data['life'] = enemy.data['life'] - 1;
             enemy.kill();
+            this.score += 100;
         } else {
             enemy.data['life'] = enemy.data['life'] - 1;
         }
@@ -622,7 +683,8 @@ class Game extends Phaser.State {
         if (this.player.data['life'] <= 1){
             this.player.data['life'] -= 1;
             player.kill();
-            this.restart();
+            this.highScore();
+            //this.restart();
         } else {
             this.player.data['life'] -= 1;
         }
@@ -714,6 +776,7 @@ class Game extends Phaser.State {
         if (this.player.data.last_area != null){
             this.game.debug.text(this.player.data.last_area.name, 162, 14, "#00ff00");
         }
+        this.game.debug.text(this.score, 262, 14, "#00ff00");
 
 
     }
