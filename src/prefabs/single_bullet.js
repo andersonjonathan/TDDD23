@@ -12,6 +12,7 @@ class SingleBullet extends Phaser.Group {
     {
       this.add(new Pencil(game, 'pencil'), true);
     }
+    this.throw_sound = this.game.add.audio('throw_sound');
     return this;
   }
 
@@ -22,6 +23,10 @@ class SingleBullet extends Phaser.Group {
     var x = source.x + 10;
     var y = source.y + 10;
     this.getFirstExists(false).fire(x, y, source.get_direction(), this.bulletSpeed, 0, 0);
+    if (this.game.data['sfx_level'] !== 0){
+      this.throw_sound.play();
+      this.throw_sound.volume = this.game.data['sfx_level'];
+    }
 
     this.nextFire = this.game.time.time + this.fireRate;
 

@@ -13,7 +13,7 @@ class Game extends Phaser.State {
 
     constructor(game, parent) {
         super(game, parent);
-        
+
         this.killRate = 2000;
         this.nextDeath = 0;
         this.baljanTime = 60000;
@@ -29,16 +29,16 @@ class Game extends Phaser.State {
         this.layer = undefined;
         this.solid_tiles = [17, 45, 59, 28];
 
-        var circle = Math.PI*2;
+        var circle = Math.PI * 2;
         this.shadow_mapping = {
-            "ne": [0, circle*0.75],
-            "e": [circle*0.125, circle*0.875],
-            "se": [circle*0.25, 0],
-            "s": [circle*0.375, circle*0.125],
-            "sw": [circle*0.5, circle*0.25],
-            "w": [circle*0.625, circle*0.375],
-            "nw": [circle*0.75, circle*0.5],
-            "n": [circle*0.875, circle*0.625]
+            "ne": [0, circle * 0.75],
+            "e": [circle * 0.125, circle * 0.875],
+            "se": [circle * 0.25, 0],
+            "s": [circle * 0.375, circle * 0.125],
+            "sw": [circle * 0.5, circle * 0.25],
+            "w": [circle * 0.625, circle * 0.375],
+            "nw": [circle * 0.75, circle * 0.5],
+            "n": [circle * 0.875, circle * 0.625]
         };
         this.night = false;
         this.release_N = true;
@@ -47,6 +47,8 @@ class Game extends Phaser.State {
         this.newbie = {
             'open_door': true,
         };
+        this.background_sound = undefined;
+        this.music_level = 0;
     }
 
     //Load operations (uses Loader), method called first
@@ -82,6 +84,12 @@ class Game extends Phaser.State {
 
         this.game.load.spritesheet('invisibleBlock', 'assets/invisibleBlock.png');
         this.game.load.spritesheet('dude','assets/dude.png');
+        this.game.load.spritesheet('mute_music','assets/mute_music.png');
+        this.game.load.spritesheet('mute_sfx','assets/mute_sfx.png');
+        this.game.load.spritesheet('sound_music','assets/sound_music.png');
+        this.game.load.spritesheet('sound_sfx','assets/sound_sfx.png');
+        this.game.load.audio('background_sound', 'assets/sound/background.mp3');
+        this.game.load.audio('throw_sound', 'assets/sound/throw.mp3');
     }
     reset() {
         this.killRate = 2000;
@@ -101,7 +109,8 @@ class Game extends Phaser.State {
     create() {
         //  We're going to be using physics, so enable the Arcade
         this.game.physics.startSystem(Phaser.Physics.Arcade);
-        
+        this.game.data = {};
+
         // Create the world/map
         this.game.world.setBounds(0, 0, 10880, 8640);
         
@@ -119,7 +128,6 @@ class Game extends Phaser.State {
 
         // Add the player
         this.player = this.game.add.existing(new Player(this.game, 12*32, 244*32, this.input));
-        this.game.data = {};
         this.game.data['player'] = this.player;
         //this.player.body.immovable = true;
         this.player.body.bounce.set(0.4);  // Can't set this in the player file for some retarded reason.
@@ -138,6 +146,8 @@ class Game extends Phaser.State {
         // Add listener to the p button for pausing
         var p_key = this.input.keyboard.addKey(Phaser.Keyboard.P);
         p_key.onDown.add(this.togglePause, this);
+        var esc_key = this.input.keyboard.addKey(Phaser.Keyboard.ESC);
+        esc_key.onDown.add(this.togglePause, this);
         
         // Add some weapons
         this.weapons = [];
@@ -207,9 +217,51 @@ class Game extends Phaser.State {
                 }
             }
         }
+        this.game.add.audio('throw_sound');
+        this.background_sound = this.game.add.audio('background_sound');
+
+        this.background_sound.loopFull();
+
+        this.background_sound.volume = this.music_level ;
+        this.game.data['sfx_level'] = 0;
+
+        var music = this.game.add.sprite(10, 526, 'mute_music');
+        music.scale.setTo(0.5, 0.5);
+        music.fixedToCamera = true;
+        music.inputEnabled = true;
+        music.events.onInputDown.add(this.toggleMusic, this);
+
+        var sfx = this.game.add.sprite(10, 462, 'mute_sfx');
+        sfx.scale.setTo(0.5, 0.5);
+        sfx.fixedToCamera = true;
+        sfx.inputEnabled = true;
+        sfx.events.onInputDown.add(this.toggleSFX, this);
 
     }
 
+    toggleMusic (music) {
+        if (music.key == 'sound_music'){
+            music.loadTexture('mute_music', 0);
+            this.music_level = 0;
+            this.background_sound.volume = this.music_level;
+        } else {
+            music.loadTexture('sound_music', 0);
+            this.music_level = 0.5;
+            this.background_sound.volume = this.music_level;
+        }
+    }
+
+    toggleSFX (sfx) {
+        if (sfx.key == 'sound_sfx'){
+            sfx.loadTexture('mute_sfx', 0);
+            this.game.data['sfx_level'] = 0;
+            this.background_sound.volume = this.music_level;
+        } else {
+            sfx.loadTexture('sound_sfx', 0);
+            this.game.data['sfx_level'] = 0.5;
+            this.background_sound.volume = this.music_level;
+        }
+    }
 
     togglePause() {
         // Toggle pause on/off
@@ -231,7 +283,7 @@ class Game extends Phaser.State {
         if (this.game.physics.arcade.isPaused){ return }  // skip this if we have paused
         
         // Check collisions
-        this.game.physics.arcade.collide(this.player, this.layer);
+
         this.game.physics.arcade.collide(this.player, this.enemies, this.collisionHandlerPlayerEnemies, null, this);
         this.game.physics.arcade.collide(this.enemies, this.layer, this.collisionHandlerEnemies, null, this);
         this.game.physics.arcade.collide(this.player, this.doors);
@@ -248,7 +300,10 @@ class Game extends Phaser.State {
         this.game.physics.arcade.collide(this.doors, this.player.halo, this.toggleDoor, null, this);
         this.game.physics.arcade.collide(this.player, this.boots, this.pickUpBoots, null, this);
         this.game.physics.arcade.collide(this.player.halo, this.baljan, this.shopInBaljan, null, this);
-        
+
+        // this must be last to not let the enemies push the player through the walls.
+        this.game.physics.arcade.collide(this.player, this.layer);
+
         // Some keyboard action
         if (this.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
             this.weapons[this.currentWeapon].fire(this.player, this);
@@ -388,14 +443,18 @@ class Game extends Phaser.State {
                     if (door.data.open == "down") {
                         in_room.add(0, -80);
                         this.player.animations.play('up');
+                        this.player.data.facing = 'n';
                     } else if (door.data.open == "up") {
                         in_room.add(0, 80);
                         this.player.animations.play('down');
+                        this.player.data.facing = 's';
                     } else if (door.data.open == "right") {
                         this.player.animations.play('left');
+                        this.player.data.facing = 'w';
                         in_room.add(-80, 0);
                     } else if (door.data.open == "left") {
                         this.player.animations.play('right');
+                        this.player.data.facing = 'e';
                         in_room.add(80, 0);
                     }
                     var tween = this.game.add.tween(this.player).to(in_door_frame, 500, Phaser.Easing.Linear.None, true);
@@ -575,6 +634,7 @@ class Game extends Phaser.State {
     shutdown() {
         this.game.world.removeAll();
         this.reset();
+        this.background_sound.stop();
     }
 
 }
