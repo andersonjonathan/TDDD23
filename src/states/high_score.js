@@ -1,18 +1,13 @@
-class Menu extends Phaser.State {
+class HighScore extends Phaser.State {
 
   constructor() {
     super();
-    this.new_game = undefined;
-    this.high_score = undefined;
-    this.help = undefined;
+
   }
 
   //Load operations (uses Loader), method called first
   preload() {
-    this.game.load.spritesheet('new_game', 'assets/buttons/new_game.png', 200, 35);
-    this.game.load.spritesheet('high_score', 'assets/buttons/high_score3.png', 200, 35);
-    this.game.load.spritesheet('help', 'assets/buttons/help.png', 200, 35);
-    this.game.load.spritesheet('settings', 'assets/buttons/settings3.png', 200, 35);
+    this.game.load.spritesheet('back', 'assets/buttons/back.png', 200, 35);
 
     this.game.load.spritesheet('mute_music','assets/mute_music.png');
     this.game.load.spritesheet('mute_sfx','assets/mute_sfx.png');
@@ -21,9 +16,6 @@ class Menu extends Phaser.State {
     this.game.load.audio('background_sound', 'assets/sound/background.mp3');
   }
   init(settings){
-    this.new_game = undefined;
-    this.high_score = undefined;
-    this.help = undefined;
     this.game.data = {};
     if(settings != undefined){
       this.game_settings = settings;
@@ -35,21 +27,13 @@ class Menu extends Phaser.State {
           'bg_music': undefined
         }
       };
+
     }
     this.game.data.settings = this.game_settings
   }
   //Setup code, method called after preload
   create() {
-    console.log("menu");
-    if(this.game.data.settings.sound.bg_music == undefined){
-      this.game.data.settings.sound.bg_music = this.game.add.audio('background_sound');
-      this.game.data.settings.sound.bg_music.loopFull();
-      this.game.data.settings.sound.bg_music.volume = this.game.data.settings.sound.music;
-    }
     this.game.stage.backgroundColor = "#54d8e0";
-    var p_key = this.input.keyboard.addKey(Phaser.Keyboard.P);
-    p_key.onDown.add(this.startGame, this);
-
     var music_sprite = 'sound_music';
     var sfx_sprite = 'sound_music';
     if (this.game.data.settings.sound.music == 0){
@@ -70,15 +54,14 @@ class Menu extends Phaser.State {
     sfx.inputEnabled = true;
     sfx.events.onInputDown.add(this.toggleSFX, this);
 
-    this.new_game = this.game.add.button(300, 250, 'new_game', this.startGame, this, 1, 0, 0);
-    this.new_game.fixedToCamera = true;
-    this.high_score = this.game.add.button(300, 290, 'high_score', this.highScore, this, 1, 0, 0);
-    this.high_score.fixedToCamera = true;
-    this.help = this.game.add.button(300, 330, 'help', this.toHelp, this, 1, 0, 0);
-    this.help.fixedToCamera = true;
-    // var settings = this.game.add.button(this.game.world.centerX - 100, 370, 'settings', this.startGame, this, 1, 0, 0);
+    var exit = this.game.add.button(300, 500, 'back', this.toMenu, this, 1, 0, 0);
 
 
+    if(this.game.data.settings.sound.bg_music == undefined){
+      this.game.data.settings.sound.bg_music = this.game.add.audio('background_sound');
+      this.game.data.settings.sound.bg_music.loopFull();
+      this.game.data.settings.sound.bg_music.volume = this.game.data.settings.sound.music;
+    }
   }
 
   toggleMusic (music) {
@@ -106,21 +89,8 @@ class Menu extends Phaser.State {
   update() {
 
   }
-  startGame(){
-    this.game.state.start('game',true, false,
-        {
-          'sound': {'sfx': this.game.data.settings.sound.sfx, 'music': this.game.data.settings.sound.music, 'bg_music': this.game.data.settings.sound.bg_music},
-          'help': {'open_door': true}
-        });
-  }
-  highScore(){
-    this.game.state.start('high_score', true, false,
-        {
-          'sound': {'sfx': this.game.data.settings.sound.sfx, 'music': this.game.data.settings.sound.music, 'bg_music': this.game.data.settings.sound.bg_music}
-        });
-  }
-  toHelp(){
-    this.game.state.start('help', true, false,
+  toMenu(){
+    this.game.state.start('menu',true, false,
         {
           'sound': {'sfx': this.game.data.settings.sound.sfx, 'music': this.game.data.settings.sound.music, 'bg_music': this.game.data.settings.sound.bg_music}
         });
@@ -143,4 +113,4 @@ class Menu extends Phaser.State {
 
 }
 
-export default Menu;
+export default HighScore;

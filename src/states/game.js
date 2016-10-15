@@ -21,7 +21,7 @@ class Game extends Phaser.State {
         this.player = undefined;
         this.enemies = undefined;
         this.text_group = null;
-
+        this.pause_menu_data = undefined;
 
         this.weapons = undefined;
         this.currentWeapon = 0;
@@ -43,12 +43,17 @@ class Game extends Phaser.State {
         this.night = false;
         this.release_N = true;
         this.release_A = true;
-        this.current_game_area = 0;
-        this.newbie = {
-            'open_door': true,
+        this.game_settings = {
+            'sound': {
+                'music': undefined,
+                'sfx': undefined
+            },
+            'help': {
+                'open_door': undefined
+            }
         };
+        this.current_game_area = 0;
         this.background_sound = undefined;
-        this.music_level = 0;
     }
 
     //Load operations (uses Loader), method called first
@@ -90,6 +95,14 @@ class Game extends Phaser.State {
         this.game.load.spritesheet('sound_sfx','assets/sound_sfx.png');
         this.game.load.audio('background_sound', 'assets/sound/background.mp3');
         this.game.load.audio('throw_sound', 'assets/sound/throw.mp3');
+
+        this.game.load.spritesheet('54d8e0','assets/54d8e0.png');
+
+        this.game.load.spritesheet('continue', 'assets/buttons/continue3.png', 200, 35);
+        this.game.load.spritesheet('restart', 'assets/buttons/restart.png', 200, 35);
+        this.game.load.spritesheet('help', 'assets/buttons/help.png', 200, 35);
+        this.game.load.spritesheet('exit', 'assets/buttons/exit3.png', 200, 35);
+        this.game.load.spritesheet('back', 'assets/buttons/back.png', 200, 35);
     }
     reset() {
         this.killRate = 2000;
@@ -103,13 +116,36 @@ class Game extends Phaser.State {
         this.currentWeapon = 0;
         this.night = false;
         this.current_game_area = 0;
+        this.pause_menu_data = undefined;
     }
-
+    init(settings){
+        this.game.data = {};
+        if(settings != undefined){
+            this.game_settings = settings;
+        } else {
+            this.game_settings = {
+                'sound': {
+                    'music': 0,
+                    'sfx': 0,
+                    'bg_music': undefined
+                },
+                'help': {
+                    'open_door': true
+                }
+            };
+        }
+        this.game.data.settings = this.game_settings
+    }
     //Setup code, method called after preload
     create() {
         //  We're going to be using physics, so enable the Arcade
         this.game.physics.startSystem(Phaser.Physics.Arcade);
-        this.game.data = {};
+
+        if(this.game.data.settings.sound.bg_music == undefined){
+            this.game.data.settings.sound.bg_music = this.game.add.audio('background_sound');
+            this.game.data.settings.sound.bg_music.loopFull();
+            this.game.data.settings.sound.bg_music.volume = this.game.data.settings.sound.music;
+        }
 
         // Create the world/map
         this.game.world.setBounds(0, 0, 10880, 8640);
@@ -218,20 +254,22 @@ class Game extends Phaser.State {
             }
         }
         this.game.add.audio('throw_sound');
-        this.background_sound = this.game.add.audio('background_sound');
 
-        this.background_sound.loopFull();
-
-        this.background_sound.volume = this.music_level ;
-        this.game.data['sfx_level'] = 0;
-
-        var music = this.game.add.sprite(10, 526, 'mute_music');
+        var music_sprite = 'sound_music';
+        var sfx_sprite = 'sound_music';
+        if (this.game.data.settings.sound.music == 0){
+            music_sprite = 'mute_music';
+        }
+        if (this.game.data.settings.sound.sfx == 0){
+            sfx_sprite = 'mute_sfx';
+        }
+        var music = this.game.add.sprite(10, 526, music_sprite);
         music.scale.setTo(0.5, 0.5);
         music.fixedToCamera = true;
         music.inputEnabled = true;
         music.events.onInputDown.add(this.toggleMusic, this);
 
-        var sfx = this.game.add.sprite(10, 462, 'mute_sfx');
+        var sfx = this.game.add.sprite(10, 462, sfx_sprite);
         sfx.scale.setTo(0.5, 0.5);
         sfx.fixedToCamera = true;
         sfx.inputEnabled = true;
@@ -242,25 +280,62 @@ class Game extends Phaser.State {
     toggleMusic (music) {
         if (music.key == 'sound_music'){
             music.loadTexture('mute_music', 0);
-            this.music_level = 0;
-            this.background_sound.volume = this.music_level;
+            this.game.data.settings.sound.music = 0;
+            this.game.data.settings.sound.bg_music.volume = this.game.data.settings.sound.music;
         } else {
             music.loadTexture('sound_music', 0);
-            this.music_level = 0.5;
-            this.background_sound.volume = this.music_level;
+            this.game.data.settings.sound.music = 1;
+            this.game.data.settings.sound.bg_music.volume = this.game.data.settings.sound.music;
         }
     }
 
     toggleSFX (sfx) {
         if (sfx.key == 'sound_sfx'){
             sfx.loadTexture('mute_sfx', 0);
-            this.game.data['sfx_level'] = 0;
-            this.background_sound.volume = this.music_level;
+            this.game.data.settings.sound.sfx = 0;
         } else {
             sfx.loadTexture('sound_sfx', 0);
-            this.game.data['sfx_level'] = 0.5;
-            this.background_sound.volume = this.music_level;
+            this.game.data.settings.sound.sfx = 1;
         }
+    }
+
+    toMenu(){
+        this.game.state.start('menu', true, false,
+            {
+                'sound': {'sfx': this.game.data.settings.sound.sfx, 'music': this.game.data.settings.sound.music, 'bg_music': this.game.data.settings.sound.bg_music}
+            });
+    }
+    pauseMenu(){
+        this.game.physics.arcade.isPaused = true;
+        this.player.data.immovable = true;
+        console.log("PAAAAUSE!");
+        for (let menu_item in this.pause_menu_data){
+            this.pause_menu_data[menu_item].destroy();
+        }
+        this.pause_menu_data = undefined;
+        this.pause_menu_data = [];
+
+        this.pause_menu_data.push(this.game.add.sprite(280, 200, '54d8e0'));
+        this.pause_menu_data[0].scale.setTo(240, 195);
+        this.pause_menu_data[0].fixedToCamera = true;
+        this.pause_menu_data[0].alpha = 0.95;
+        this.pause_menu_data.push(this.game.add.button(300, 220, 'continue', this.togglePause, this, 1, 0, 0));
+        this.pause_menu_data.push(this.game.add.button(300, 260, 'restart', this.restart, this, 1, 0, 0));
+        this.pause_menu_data.push(this.game.add.button(300, 300, 'help', this.help, this, 1, 0, 0));
+        this.pause_menu_data.push(this.game.add.button(300, 340, 'exit', this.toMenu, this, 1, 0, 0));
+        this.pause_menu_data[1].fixedToCamera = true;
+        this.pause_menu_data[2].fixedToCamera = true;
+        this.pause_menu_data[3].fixedToCamera = true;
+        this.pause_menu_data[4].fixedToCamera = true;
+    }
+    resumeFromPause(){
+        console.log("RESUME!!!");
+        this.game.physics.arcade.isPaused = false;
+        this.player.data.immovable = false;
+        for (let menu_item in this.pause_menu_data){
+            this.pause_menu_data[menu_item].destroy();
+        }
+        this.pause_menu_data = undefined;
     }
 
     togglePause() {
@@ -271,9 +346,9 @@ class Game extends Phaser.State {
         });
         this.game.physics.arcade.isPaused = (!this.game.physics.arcade.isPaused);
         if (this.game.physics.arcade.isPaused){
-            console.log("PAAAAUSE!");
+            this.pauseMenu();
         } else {
-            console.log("RESUME!!!");
+            this.resumeFromPause();
         }
     }
 
@@ -365,7 +440,20 @@ class Game extends Phaser.State {
         this.updateShadowTexture();
     }
 
+    help(){
+        for (let menu_item in this.pause_menu_data){
+            this.pause_menu_data[menu_item].destroy();
+        }
+        this.pause_menu_data = undefined;
+        this.pause_menu_data = [];
 
+        this.pause_menu_data.push(this.game.add.sprite(100, 50, '54d8e0'));
+        this.pause_menu_data[0].scale.setTo(600, 500);
+        this.pause_menu_data[0].fixedToCamera = true;
+        this.pause_menu_data[0].alpha = 0.95;
+        this.pause_menu_data.push(this.game.add.button(485, 500, 'back', this.pauseMenu, this, 1, 0, 0));
+        this.pause_menu_data[1].fixedToCamera = true;
+    }
 
     updateShadowTexture() {
         if (!this.night){
@@ -406,8 +494,8 @@ class Game extends Phaser.State {
     };
 
     toggleDoor(halo, door){
-        if(this.newbie.open_door){
-            this.newbie.open_door = false;
+        if(this.game.data.settings.help.open_door){
+            this.game.data.settings.help.open_door = false;
             this.createText("Press A to open.");
         }
         // Open or close the door.
@@ -534,7 +622,7 @@ class Game extends Phaser.State {
         if (this.player.data['life'] <= 1){
             this.player.data['life'] -= 1;
             player.kill();
-            this.game.state.restart(true, false);
+            this.restart();
         } else {
             this.player.data['life'] -= 1;
         }
@@ -629,12 +717,16 @@ class Game extends Phaser.State {
 
 
     }
+    restart(){
+        this.game.state.restart(true, false, this.game.data.settings);
+    }
 
     //Called when switching to a new state
     shutdown() {
+        this.game.physics.arcade.isPaused = false;
         this.game.world.removeAll();
         this.reset();
-        this.background_sound.stop();
+
     }
 
 }
