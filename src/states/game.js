@@ -60,6 +60,8 @@ class Game extends Phaser.State {
         this.background_sound = undefined;
         this.final_score = 0;
         this.score = 0;
+        this.life_sprites = undefined;
+        this.score_group = undefined;
     }
 
     //Load operations (uses Loader), method called first
@@ -109,6 +111,8 @@ class Game extends Phaser.State {
         this.game.load.spritesheet('help', 'assets/buttons/help.png', 200, 35);
         this.game.load.spritesheet('exit', 'assets/buttons/exit3.png', 200, 35);
         this.game.load.spritesheet('back', 'assets/buttons/back.png', 200, 35);
+
+        this.game.load.spritesheet('heart', 'assets/heart.png');
     }
     reset() {
         this.killRate = 2000;
@@ -127,6 +131,8 @@ class Game extends Phaser.State {
         this.score = 0;
         this.removePoint = 0;
         this.removeRate = 1000;
+        this.life_sprites = undefined;
+        this.score_group = undefined;
     }
     init(settings){
         this.game.data = {};
@@ -270,6 +276,24 @@ class Game extends Phaser.State {
         sfx.events.onInputDown.add(this.toggleSFX, this);
 
         this.game.add.plugin(Fabrique.Plugins.InputField);
+        this.score_group = this.game.add.group();
+        var text = this.game.add.text(790, 10, this.score, {
+            font: "22px Arial",
+            fill: "#ffffff"
+        });
+        text.anchor.set(1, 0);
+        this.score_group.add(text);
+        this.score_group.fixedToCamera = true;
+        this.life_sprites = [
+            this.game.add.sprite(760, 40, 'heart'),
+            this.game.add.sprite(730, 40, 'heart'),
+            this.game.add.sprite(700, 40, 'heart')
+        ];
+        for (let life in this.life_sprites){
+            this.life_sprites[life].fixedToCamera = true;
+            this.life_sprites[life].scale.setTo(0.1, 0.1);
+        }
+
     }
 
     toggleMusic (music) {
@@ -498,6 +522,7 @@ class Game extends Phaser.State {
         }
         // Update night mode
         this.updateShadowTexture();
+        this.score_group.children[0].setText(this.score);
     }
 
     help(){
@@ -682,11 +707,12 @@ class Game extends Phaser.State {
 
         if (this.player.data['life'] <= 1){
             this.player.data['life'] -= 1;
+            this.life_sprites[this.player.data['life']].alpha = 0;
             player.kill();
             this.highScore();
-            //this.restart();
         } else {
             this.player.data['life'] -= 1;
+            this.life_sprites[this.player.data['life']].alpha = 0;
         }
 
         this.nextDeath = this.game.time.time + this.killRate;
@@ -722,11 +748,12 @@ class Game extends Phaser.State {
                     }));
                     this.text_group.fixedToCamera = true;
                     this.time.events.add(2000, this.destroyText, this);*/
-                    this.createText("You must wait " + (this.nextLife - this.game.time.time) / 1000 + " more seconds.");
+                    this.createText("You must wait " + Math.floor((this.nextLife - this.game.time.time) / 1000) + " more seconds.");
                     return;
                 }
             }
             console.log("Köpa kaffe i baljan");
+            this.life_sprites[this.player.data['life']].alpha = 1;
             this.player.data['life'] = this.player.data['life'] + 1;
             this.nextLife = this.game.time.time + this.baljanTime;
             this.createText("Life increased to " + this.player.data['life'])
@@ -770,13 +797,13 @@ class Game extends Phaser.State {
         // this.game.debug.cameraInfo(this.game.camera, 32, 32);
         // this.game.debug.spriteCoords(this.player, 32, 500);
         this.game.debug.text(this.game.time.fps, 2, 14, "#00ff00");
-        if (this.player.data.last_room != null){
-            this.game.debug.text(this.player.data.last_room.name, 62, 14, "#00ff00");
-        }
-        if (this.player.data.last_area != null){
-            this.game.debug.text(this.player.data.last_area.name, 162, 14, "#00ff00");
-        }
-        this.game.debug.text(this.score, 262, 14, "#00ff00");
+        // if (this.player.data.last_room != null){
+        //     this.game.debug.text(this.player.data.last_room.name, 62, 14, "#00ff00");
+        // }
+        // if (this.player.data.last_area != null){
+        //     this.game.debug.text(this.player.data.last_area.name, 162, 14, "#00ff00");
+        // }
+        // this.game.debug.text(this.score, 262, 14, "#00ff00");
 
 
     }
