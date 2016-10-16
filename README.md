@@ -53,7 +53,6 @@ Tiled
 * Fiender (Skjuter mot dig)
 * Tenta 5 frågor
 * Klassrums inredning
-* Hjälp/kontroller
 * Hitta saker på toa. Fler saker.
 * Fler typer av enemies
 * Fler vapen
