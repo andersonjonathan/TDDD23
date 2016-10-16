@@ -49,11 +49,15 @@ http://renderhjs.net/shoebox/
 Tiled
 
 #TODO
-* Baljan (Butik, köpa mer liv, kaffe som vapen)
+* Fler typer av enemies
+* Minst en enemy i varje rum.
+* Hitta saker på toa. Fler saker.
+* Piltangenter i Help
+* Visa antal skott
+
 * Fiender (Skjuter mot dig)
 * Tenta 5 frågor
 * Klassrums inredning
-* Hitta saker på toa. Fler saker.
-* Fler typer av enemies
 * Fler vapen
 * Ammo
+* Baljan (Butik, köpa mer liv, kaffe som vapen)
