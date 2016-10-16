@@ -60,8 +60,7 @@ class Player extends Phaser.Sprite {
     this.updateRate = 20;
     this.data.last_room = null;
     this.data.last_area = null;
-
-
+    
   }
 
   get_direction(){

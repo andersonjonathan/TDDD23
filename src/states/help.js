@@ -23,6 +23,7 @@ class Help extends Phaser.State {
     this.game.load.spritesheet('e', 'assets/key_e.png');
     this.game.load.spritesheet('esc', 'assets/key_esc.png');
     this.game.load.spritesheet('space', 'assets/key_space.png');
+    this.game.load.spritesheet('arrows', 'assets/key_arrows.png');
   }
   init(settings){
     this.game.data = {};
@@ -46,6 +47,17 @@ class Help extends Phaser.State {
 
     var exit = this.game.add.button(300, 500, 'back', this.toMenu, this, 1, 0, 0);
 
+    var tmp = this.game.add.sprite(550, 65, 'arrows');
+
+    tmp.scale.setTo(0.7, 0.7);
+    tmp.anchor.set(0, 0);
+    var txt = this.game.add.text(618, 160, 'Moving', {
+      font: "22px Arial",
+      fill: "#ffffff"
+    });
+
+    txt.anchor.set(0.5, 0);
+
     var help_data = [
       {'key': 'a', 'help_text': 'Open/Close doors'},
       {'key': 's', 'help_text': ''},
@@ -57,7 +69,7 @@ class Help extends Phaser.State {
       {'key': 'space', 'help_text': 'Shoot'}
     ];
     for (let item in help_data){
-      var tmp = this.game.add.sprite(250, 65+item*50, help_data[item].key);
+      tmp = this.game.add.sprite(250, 65+item*50, help_data[item].key);
       tmp.scale.setTo(0.7, 0.7);
       tmp.anchor.set(1, 0);
       this.game.add.text(270, 72+item*50, help_data[item].help_text, {

@@ -52,7 +52,6 @@ Tiled
 * Fler typer av enemies
 * Minst en enemy i varje rum.
 * Hitta saker på toa. Fler saker.
-* Piltangenter i Help
 * Visa antal skott
 
 * Fiender (Skjuter mot dig)

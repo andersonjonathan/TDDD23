@@ -59,6 +59,7 @@ assets.load = function (game) {
     game.load.spritesheet('e', 'assets/key_e.png');
     game.load.spritesheet('esc', 'assets/key_esc.png');
     game.load.spritesheet('space', 'assets/key_space.png');
+    game.load.spritesheet('arrows', 'assets/key_arrows.png');
     
     game.load.spritesheet('pause', 'assets/pause.png');
 };

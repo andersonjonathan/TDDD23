@@ -190,7 +190,7 @@ class Game extends Phaser.State {
         pause.inputEnabled = true;
         pause.events.onInputDown.add(this.pauseMenu, this);
         pause.scale.setTo(0.4, 0.4);
-
+        this.createKey('arrows');
     }
 
     //Code ran on each frame of game
@@ -207,7 +207,7 @@ class Game extends Phaser.State {
         this.game.physics.arcade.collide(this.player, this.baljan);
         this.game.physics.arcade.collide(this.enemies, this.enemies);
 
-        this.game.physics.arcade.collide(this.weapons, this.enemies, this.collisionHandler, null, this);
+        this.game.physics.arcade.overlap(this.weapons, this.enemies, this.collisionHandler, null, this);
         this.game.physics.arcade.collide(this.weapons, this.layer, this.collisionHandlerWall, null, this);
         this.game.physics.arcade.collide(this.weapons, this.doors, this.collisionHandlerDoor, null, this);
         this.game.physics.arcade.collide(this.weapons, this.fire_doors, this.collisionHandlerDoor, null, this);
@@ -218,7 +218,7 @@ class Game extends Phaser.State {
 
         // this must be last to not let the enemies push the player through the walls.
         this.game.physics.arcade.collide(this.player, this.layer);
-        
+
         // Some keyboard action
         if (this.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
             this.game.data.score = this.score; // this isn't fulkod
@@ -474,6 +474,16 @@ class Game extends Phaser.State {
             }));
             list_index += 1;
         }
+        this.pause_menu_data.push(this.game.add.sprite(550, 65, 'arrows'));
+        list_index += 1;
+        this.pause_menu_data[list_index].scale.setTo(0.7, 0.7);
+        this.pause_menu_data[list_index].anchor.set(0, 0);
+        this.pause_menu_data.push(this.game.add.text(618, 160, 'Moving', {
+            font: "22px Arial",
+            fill: "#ffffff"
+        }));
+        list_index += 1;
+        this.pause_menu_data[list_index].anchor.set(0.5, 0);
         for (let tmp in this.pause_menu_data){
             this.pause_menu_data[tmp].fixedToCamera = true;
         }
