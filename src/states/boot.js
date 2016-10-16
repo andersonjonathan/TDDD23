@@ -22,7 +22,6 @@ class Boot extends Phaser.State {
       this.game.scale.maxHeight = 480;
       this.game.scale.forceOrientation(true);
       this.game.scale.pageAlignHorizontally = true;
-      this.game.scale.setScreenSize(true);
     }
 
     this.initGlobalVariables();

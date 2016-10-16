@@ -14,6 +14,14 @@ class Help extends Phaser.State {
     this.game.load.spritesheet('sound_music','assets/sound_music.png');
     this.game.load.spritesheet('sound_sfx','assets/sound_sfx.png');
     this.game.load.audio('background_sound', 'assets/sound/background.mp3');
+    this.game.load.spritesheet('a', 'assets/key_a.png');
+    this.game.load.spritesheet('s', 'assets/key_s.png');
+    this.game.load.spritesheet('d', 'assets/key_d.png');
+    this.game.load.spritesheet('q', 'assets/key_q.png');
+    this.game.load.spritesheet('w', 'assets/key_w.png');
+    this.game.load.spritesheet('e', 'assets/key_e.png');
+    this.game.load.spritesheet('esc', 'assets/key_esc.png');
+    this.game.load.spritesheet('space', 'assets/key_space.png');
   }
   init(settings){
     this.game.data = {};
@@ -55,6 +63,64 @@ class Help extends Phaser.State {
     sfx.events.onInputDown.add(this.toggleSFX, this);
 
     var exit = this.game.add.button(300, 500, 'back', this.toMenu, this, 1, 0, 0);
+
+    var a = this.game.add.sprite(200, 50, 'a');
+    a.scale.setTo(0.7, 0.7);
+    a.anchor.set(1, 0);
+    this.game.add.text(220, 57, "Open/Close doors", {
+      font: "22px Arial",
+      fill: "#ffffff"
+    });
+
+    var s = this.game.add.sprite(200, 100, 's');
+    s.scale.setTo(0.7, 0.7);
+    s.anchor.set(1, 0);
+    this.game.add.text(220, 107, "", {
+      font: "22px Arial",
+      fill: "#ffffff"
+    });
+    var d = this.game.add.sprite(200, 150, 'd');
+    d.scale.setTo(0.7, 0.7);
+    d.anchor.set(1, 0);
+    this.game.add.text(220, 157, "", {
+      font: "22px Arial",
+      fill: "#ffffff"
+    });
+    var q = this.game.add.sprite(200, 200, 'q');
+    q.scale.setTo(0.7, 0.7);
+    q.anchor.set(1, 0);
+    this.game.add.text(220, 207, "Shop in Baljan", {
+      font: "22px Arial",
+      fill: "#ffffff"
+    });
+    var w = this.game.add.sprite(200, 250, 'w');
+    w.scale.setTo(0.7, 0.7);
+    w.anchor.set(1, 0);
+    this.game.add.text(220, 257, "Superpower", {
+      font: "22px Arial",
+      fill: "#ffffff"
+    });
+    var e = this.game.add.sprite(200, 300, 'e');
+    e.scale.setTo(0.7, 0.7);
+    e.anchor.set(1, 0);
+    this.game.add.text(220, 307, "Turn on/off the lights", {
+      font: "22px Arial",
+      fill: "#ffffff"
+    });
+    var esc = this.game.add.sprite(200, 350, 'esc');
+    esc.scale.setTo(0.7, 0.7);
+    esc.anchor.set(1, 0);
+    this.game.add.text(220, 357, "Pause / Resume", {
+      font: "22px Arial",
+      fill: "#ffffff"
+    });
+    var space = this.game.add.sprite(200, 400, 'space');
+    space.scale.setTo(0.7, 0.7);
+    space.anchor.set(1, 0);
+    this.game.add.text(220, 407, "Shoot", {
+      font: "22px Arial",
+      fill: "#ffffff"
+    });
 
 
     if(this.game.data.settings.sound.bg_music == undefined){

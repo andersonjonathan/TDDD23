@@ -45,7 +45,7 @@ class Game extends Phaser.State {
             "n": [circle * 0.875, circle * 0.625]
         };
         this.night = false;
-        this.release_N = true;
+        this.release_E = true;
         this.release_A = true;
         this.game_settings = {
             'sound': {
@@ -62,6 +62,7 @@ class Game extends Phaser.State {
         this.score = 0;
         this.life_sprites = undefined;
         this.score_group = undefined;
+        this.reported_hs = false;
     }
 
     //Load operations (uses Loader), method called first
@@ -113,6 +114,15 @@ class Game extends Phaser.State {
         this.game.load.spritesheet('back', 'assets/buttons/back.png', 200, 35);
 
         this.game.load.spritesheet('heart', 'assets/heart.png');
+
+        this.game.load.spritesheet('a', 'assets/key_a.png');
+        this.game.load.spritesheet('s', 'assets/key_s.png');
+        this.game.load.spritesheet('d', 'assets/key_d.png');
+        this.game.load.spritesheet('q', 'assets/key_q.png');
+        this.game.load.spritesheet('w', 'assets/key_w.png');
+        this.game.load.spritesheet('e', 'assets/key_e.png');
+        this.game.load.spritesheet('esc', 'assets/key_esc.png');
+        this.game.load.spritesheet('space', 'assets/key_space.png');
     }
     reset() {
         this.killRate = 2000;
@@ -133,6 +143,7 @@ class Game extends Phaser.State {
         this.removeRate = 1000;
         this.life_sprites = undefined;
         this.score_group = undefined;
+        this.reported_hs = false;
     }
     init(settings){
         this.game.data = {};
@@ -190,14 +201,12 @@ class Game extends Phaser.State {
         this.input.keyboard.addKeyCapture([
             Phaser.Keyboard.SPACEBAR,
             Phaser.Keyboard.A,
-            Phaser.Keyboard.R,
-            Phaser.Keyboard.N,
-            Phaser.Keyboard.PAGE_DOWN, // only for debugging
+            Phaser.Keyboard.W,
+            Phaser.Keyboard.E,
+            Phaser.Keyboard.Q,
         ]);
         
         // Add listener to the p button for pausing
-        var p_key = this.input.keyboard.addKey(Phaser.Keyboard.P);
-        p_key.onDown.add(this.togglePause, this);
         var esc_key = this.input.keyboard.addKey(Phaser.Keyboard.ESC);
         esc_key.onDown.add(this.togglePause, this);
         
@@ -352,6 +361,7 @@ class Game extends Phaser.State {
     highScore(){
         this.score += 1000 * this.player.data.life;
         this.final_score = this.score;
+        this.score_group.children[0].setText(this.score);
         this.game.physics.arcade.isPaused = true;
         this.player.data.immovable = true;
         console.log("PAAAAUSE!");
@@ -391,16 +401,22 @@ class Game extends Phaser.State {
         this.pause_menu_data[3].fixedToCamera = true;
 
     }
+
     reportHighScore(){
-        console.log(this.pause_menu_data[2].value + ": " + this.final_score);
-        // store this data somewhere.
-        var _this = this;
-        ajax.post(
-            'http://liucrawler-skogsjonis.rhcloud.com/api/v1/add/',
-            {'name': this.pause_menu_data[2].value,
-            'score': this.final_score}, function () {
-                _this.toMenu();
-            }, true);
+        if (this.reported_hs == false){
+            this.reported_hs = true;
+
+            ajax.post(
+                'http://liucrawler-skogsjonis.rhcloud.com/api/v1/add/',
+                {
+                    'name': this.pause_menu_data[2].value,
+                    'score': this.final_score
+                },
+                function (){},
+                true
+            );
+            this.toMenu();
+        }
 
     }
     resumeFromPause(){
@@ -462,18 +478,14 @@ class Game extends Phaser.State {
             this.weapons[this.currentWeapon].fire(this.player, this);
         }
 
-        if (this.input.keyboard.isDown(Phaser.Keyboard.N)) {
-            if (this.release_N) {
+        if (this.input.keyboard.isDown(Phaser.Keyboard.E)) {
+            if (this.release_E) {
 
                 this.night = this.night ? false : true;
-                this.release_N = false;
+                this.release_E = false;
             }
         } else {
-            this.release_N = true;
-        }
-
-        if (this.input.keyboard.isDown(Phaser.Keyboard.PAGE_DOWN)) {
-            this.player.data['immovable'] = true;
+            this.release_E = true;
         }
 
         if (this.player.data.last_room == null){
@@ -500,16 +512,22 @@ class Game extends Phaser.State {
             }
         }
 
+
+
+
+
+        if (this.current_game_area == 11){
+            this.player.kill();
+            this.highScore();
+            console.log("Winner!");
+            return
+        }
         var ga = GameAreas.game_areas[this.current_game_area];
         if (ga.get_enemies(this.enemies).length === 0){
             ga.unlock();
             ga.open();
             this.current_game_area += 1;
-            if (this.current_game_area == 12){
-                player.kill();
-                this.highScore();
-                console.log("Winner!");
-            }
+
         }
 
         if (this.game.time.time >= this.nextDeath) {
@@ -534,10 +552,68 @@ class Game extends Phaser.State {
 
         this.pause_menu_data.push(this.game.add.sprite(100, 50, '54d8e0'));
         this.pause_menu_data[0].scale.setTo(600, 500);
-        this.pause_menu_data[0].fixedToCamera = true;
         this.pause_menu_data[0].alpha = 0.95;
         this.pause_menu_data.push(this.game.add.button(485, 500, 'back', this.pauseMenu, this, 1, 0, 0));
-        this.pause_menu_data[1].fixedToCamera = true;
+        this.pause_menu_data.push(this.game.add.sprite(200, 65, 'a'));
+        this.pause_menu_data[2].scale.setTo(0.7, 0.7);
+        this.pause_menu_data[2].anchor.set(1, 0);
+        this.pause_menu_data.push(this.game.add.text(220, 72, "Open/Close doors", {
+            font: "22px Arial",
+            fill: "#ffffff"
+        }));
+
+        this.pause_menu_data.push(this.game.add.sprite(200, 115, 's'));
+        this.pause_menu_data[4].scale.setTo(0.7, 0.7);
+        this.pause_menu_data[4].anchor.set(1, 0);
+        this.pause_menu_data.push(this.game.add.text(220, 122, "", {
+            font: "22px Arial",
+            fill: "#ffffff"
+        }));
+        this.pause_menu_data.push(this.game.add.sprite(200, 165, 'd'));
+        this.pause_menu_data[6].scale.setTo(0.7, 0.7);
+        this.pause_menu_data[6].anchor.set(1, 0);
+        this.pause_menu_data.push(this.game.add.text(220, 172, "", {
+            font: "22px Arial",
+            fill: "#ffffff"
+        }));
+        this.pause_menu_data.push(this.game.add.sprite(200, 215, 'q'));
+        this.pause_menu_data[8].scale.setTo(0.7, 0.7);
+        this.pause_menu_data[8].anchor.set(1, 0);
+        this.pause_menu_data.push(this.game.add.text(220, 222, "Shop in Baljan", {
+            font: "22px Arial",
+            fill: "#ffffff"
+        }));
+        this.pause_menu_data.push(this.game.add.sprite(200, 265, 'w'));
+        this.pause_menu_data[10].scale.setTo(0.7, 0.7);
+        this.pause_menu_data[10].anchor.set(1, 0);
+        this.pause_menu_data.push(this.game.add.text(220, 272, "Superpower", {
+            font: "22px Arial",
+            fill: "#ffffff"
+        }));
+        this.pause_menu_data.push(this.game.add.sprite(200, 315, 'e'));
+        this.pause_menu_data[12].scale.setTo(0.7, 0.7);
+        this.pause_menu_data[12].anchor.set(1, 0);
+        this.pause_menu_data.push(this.game.add.text(220, 322, "Turn on/off the lights", {
+            font: "22px Arial",
+            fill: "#ffffff"
+        }));
+        this.pause_menu_data.push(this.game.add.sprite(200, 365, 'esc'));
+        this.pause_menu_data[14].scale.setTo(0.7, 0.7);
+        this.pause_menu_data[14].anchor.set(1, 0);
+        this.pause_menu_data.push(this.game.add.text(220, 372, "Pause / Resume", {
+            font: "22px Arial",
+            fill: "#ffffff"
+        }));
+        this.pause_menu_data.push(this.game.add.sprite(200, 415, 'space'));
+        this.pause_menu_data[16].scale.setTo(0.7, 0.7);
+        this.pause_menu_data[16].anchor.set(1, 0);
+        this.pause_menu_data.push(this.game.add.text(220, 422, "Shoot", {
+            font: "22px Arial",
+            fill: "#ffffff"
+        }));
+        for (let tmp in this.pause_menu_data){
+            this.pause_menu_data[tmp].fixedToCamera = true;
+        }
     }
 
     updateShadowTexture() {
@@ -635,9 +711,6 @@ class Game extends Phaser.State {
                         var tween2 = this.game.add.tween(this.player).to(in_room, 0, Phaser.Easing.Linear.None, true);
                         tween2.onComplete.add(function () {
                             this.player.data.immovable = false;
-                            if (door.data.room !== this.player.data.last_room.id){
-                                console.log("This door goes the the wrong room ", door.data.id)
-                            }
                         }, this);
                     }, this);
                 }
@@ -655,7 +728,7 @@ class Game extends Phaser.State {
 
     pickUpBoots(player, boots){
         boots.kill();
-        this.player.data.speed = this.player.data.original_speed * 3;
+        this.player.data.super_speed = this.player.data.original_speed * 3;
     }
 
     collisionHandler (bullet, enemy) {
@@ -722,16 +795,16 @@ class Game extends Phaser.State {
     }
 
     shopInBaljan (halo, baljan){
-        if (this.input.keyboard.isDown(Phaser.Keyboard.B))
+        if (this.input.keyboard.isDown(Phaser.Keyboard.Q))
         {
 
-            if (this.release_B) {
+            if (this.release_Q) {
                 // Close the door
                 this.addLife();
             }
-            this.release_B = false;
+            this.release_Q = false;
         } else {
-            this.release_B = true
+            this.release_Q = true
         }
     }
 

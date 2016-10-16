@@ -42,6 +42,7 @@ class Player extends Phaser.Sprite {
     this.animations.add('flashing_rightdown', [19, 24, 20, 24, 23, 24], 10, true);
 
     this.data.original_speed = 320;
+    this.data.super_speed = 320;
     this.data.speed = 320;
     this.data.facing = "n";
     this.data.facing_mapping = {
@@ -89,11 +90,11 @@ class Player extends Phaser.Sprite {
 
   //Code ran on each frame of game
   update() {
-   if (this.input.keyboard.isDown(Phaser.Keyboard.R))
+   if (this.input.keyboard.isDown(Phaser.Keyboard.W))
     {
-      this.data.speed = this.data.original_speed * 3
+      this.data.speed = this.data.super_speed;
     } else {
-      this.data.speed = this.data.original_speed
+      this.data.speed = this.data.original_speed;
     }
     this.move();
     this.in_room();

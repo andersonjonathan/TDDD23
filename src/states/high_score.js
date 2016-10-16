@@ -68,7 +68,7 @@ class HighScore extends Phaser.State {
     ajax.get('http://liucrawler-skogsjonis.rhcloud.com/api/v1/get/', null, function (data) {
       var data_obj = JSON.parse(data);
       var score_list = _this.game.add.group();
-        var text = undefined;
+        var text;
         for (let obj in data_obj){
             text = _this.game.add.text(150, 100+30*obj, parseInt(obj)+1, {
               font: "22px Arial",
