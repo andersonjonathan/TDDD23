@@ -63,6 +63,9 @@ assets.load = function (game) {
     
     game.load.spritesheet('pause', 'assets/pause.png');
     game.load.spritesheet('infinity', 'assets/infinite.png');
+    
+    game.load.image('ordo', 'assets/ordo-boss.png');
+    game.load.image('ordoBullet', 'assets/math_1.png');
 
 };
 export default assets;

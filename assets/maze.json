@@ -96,8 +96,8 @@
                  "type":"",
                  "visible":true,
                  "width":32,
-                 "x":1552.32496307238,
-                 "y":7576.6765140325
+                 "x":2508.32496307238,
+                 "y":7450.6765140325
                 }, 
                 {
                  "gid":150,
@@ -108,8 +108,8 @@
                  "type":"",
                  "visible":true,
                  "width":32,
-                 "x":2800,
-                 "y":6952
+                 "x":2846,
+                 "y":6020
                 }, 
                 {
                  "gid":150,
@@ -256,18 +256,6 @@
                  "y":7007
                 }, 
                 {
-                 "gid":166,
-                 "height":32,
-                 "id":300,
-                 "name":"",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":32,
-                 "x":620,
-                 "y":7422
-                }, 
-                {
                  "gid":245,
                  "height":32,
                  "id":301,
@@ -276,8 +264,56 @@
                  "type":"",
                  "visible":true,
                  "width":32,
-                 "x":1304.90909090909,
-                 "y":7585.75757575758
+                 "x":2392.90909090909,
+                 "y":5963.75757575758
+                }, 
+                {
+                 "gid":166,
+                 "height":32,
+                 "id":300,
+                 "name":"C1boss",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":8483,
+                 "y":8226
+                }, 
+                {
+                 "gid":246,
+                 "height":32,
+                 "id":303,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":625.636363636364,
+                 "y":7439.36363636364
+                }, 
+                {
+                 "gid":166,
+                 "height":32,
+                 "id":304,
+                 "name":"C1boss",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":7032,
+                 "y":6048
+                }, 
+                {
+                 "gid":166,
+                 "height":32,
+                 "id":305,
+                 "name":"C1boss",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":2516,
+                 "y":6744
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -2351,7 +2387,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":303,
+ "nextobjectid":306,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tileheight":32,

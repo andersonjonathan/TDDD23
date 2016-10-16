@@ -10,6 +10,7 @@ class SimpleEnemy extends Phaser.Sprite {
     this.animations.add('left', [0, 1, 2, 3], 8, true);
     this.animations.add('right', [5, 6, 7, 8], 8, true);
     this.animations.play('right');
+    this.data['points'] = 50;
   }
 
   //Code ran on each frame of game

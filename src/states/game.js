@@ -81,6 +81,8 @@ class Game extends Phaser.State {
         this.helpRate = 2500;
         this.weapons_display = undefined;
         this.weapons_display = [];
+
+        this.enemy_weapons = undefined;
     }
 
     init(settings){
@@ -154,6 +156,8 @@ class Game extends Phaser.State {
         this.weapons.push(new Weapon.SingleBullet(this.game));
         this.currentWeapon = 0;
 
+        this.enemy_weapons = [];
+        this.game.data['enemy_weapons'] = this.enemy_weapons;
         // Enemies
         this.enemies = new Enemies(this.game, this.map, this.player);
 
@@ -224,6 +228,11 @@ class Game extends Phaser.State {
         this.game.physics.arcade.collide(this.weapons, this.layer, this.collisionHandlerWall, null, this);
         this.game.physics.arcade.collide(this.weapons, this.doors, this.collisionHandlerDoor, null, this);
         this.game.physics.arcade.collide(this.weapons, this.fire_doors, this.collisionHandlerDoor, null, this);
+        this.game.physics.arcade.overlap(this.enemy_weapons, this.player, this.collisionEnemyBulletHandler, null, this);
+        this.game.physics.arcade.collide(this.enemy_weapons, this.layer, this.collisionHandlerWall, null, this);
+        this.game.physics.arcade.collide(this.enemy_weapons, this.doors, this.collisionHandlerDoor, null, this);
+        this.game.physics.arcade.collide(this.enemy_weapons, this.fire_doors, this.collisionHandlerDoor, null, this);
+
         this.game.physics.arcade.collide(this.doors, this.player.halo, this.toggleDoor, null, this);
         this.game.physics.arcade.collide(this.fire_doors, this.player.halo, this.toggleFireDoor, null, this);
         this.game.physics.arcade.collide(this.player, this.boots, this.pickUpBoots, null, this);
@@ -550,7 +559,7 @@ class Game extends Phaser.State {
     }
 
     toggleDoor(halo, door){
-        if(this.game.data.settings.help.open_door >= 0 && door.angle == 0){
+        if(this.game.data.settings.help.open_door >= 0 && door.angle == 0 && door.locked == false){
             if (this.game.time.time > this.nextOpenDoorTip) {
                 this.game.data.settings.help.open_door -= 1;
                 this.createKey('a');
@@ -567,8 +576,14 @@ class Game extends Phaser.State {
         }
         if (this.input.keyboard.isDown(Phaser.Keyboard.A)) {
             if (door.angle == 0){
+                if (door.locked){
+                    if (this.release_A) {
+                        this.createText("You can't open this door!");
+                        this.createText("Clear the classroom from enemies to open!");
+                    }
+                }
                 door.open();
-                if(door.position.y < 247*32 && door.open()) {
+                if(door.position.y < 247*32 && door.locked == false) {
                     this.player.moveThroughDoor(door);
                     if(this.game.data.settings.help.shoot > 0){
                         this.game.data.settings.help.shoot -= 1;
@@ -605,12 +620,23 @@ class Game extends Phaser.State {
         if(enemy.data['life'] <= 1){
             enemy.data['life'] = enemy.data['life'] - 1;
             enemy.kill();
-            this.score += 100;
+            this.score += enemy.data['points'];
         } else {
             enemy.data['life'] = enemy.data['life'] - 1;
         }
-
-
+    }
+    collisionEnemyBulletHandler (player, bullet) {
+        //  When a bullet hits an alien we kill them both
+        bullet.kill();
+        if(this.player.data['life'] <= 1){
+            this.player.data['life'] = this.player.data['life'] - 1;
+            this.life_sprites[this.player.data['life']].alpha = 0;
+            this.player.kill();
+            this.highScore();
+        } else {
+            this.player.data['life'] = this.player.data['life'] - 1;
+            this.life_sprites[this.player.data['life']].alpha = 0;
+        }
     }
     collisionHandlerWall (bullet, wall) {
         // kill bullets that hits the wall

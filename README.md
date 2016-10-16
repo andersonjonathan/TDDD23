@@ -48,12 +48,17 @@ https://get.adobe.com/air/download/?installer=Adobe_AIR_22.0_for_Win32&standalon
 http://renderhjs.net/shoebox/
 Tiled
 
+
+# Om vi hade haft mer tid
+* Bättre genomtänkta rum.
+* Olika vapen att byta mellan. (olika antal skott m.m.)
+* Klassrums inredning
+* Fler saker att plocka upp. (ammo, odödlighet en period) 
+
+
 #TODO
-* Fler typer av enemies
 * Minst en enemy i varje rum.
 * Hitta saker på toa. Fler saker.
-* Visa antal skott
-
 * Fiender (Skjuter mot dig)
 * Tenta 5 frågor
 * Klassrums inredning

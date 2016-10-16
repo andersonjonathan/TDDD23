@@ -171,15 +171,15 @@ class Doors extends Phaser.Group {
             {"x": 955, "y": 7008, "sprite": "door_1_3", "pivot": {"x": 0, "y": 96, "type": 25}, "data": {"room": 11, "open": "right", "id": 160, "size": {"x": 5, "y": 96}, "hinge": "down"}},
             {"x": 667, "y": 5568, "sprite": "door_1_3", "pivot": {"x": 0, "y": 96, "type": 25}, "data": {"room": 29, "open": "right", "id": 161, "size": {"x": 5, "y": 96}, "hinge": "down"}},
             {"x": 1787, "y": 6880, "sprite": "door_1_3", "pivot": {"x": 0, "y": 96, "type": 25}, "data": {"room": 2, "open": "right", "id": 162, "size": {"x": 5, "y": 96}, "hinge": "down"}},
-            {"x": 8814, "y": 7584, "sprite": "door_1_3", "pivot": {"x": 0, "y": 96, "type": 25}, "data": {"room": 24, "open": "right", "id": 163, "size": {"x": 5, "y": 96}, "hinge": "down"}},
+            {"x": 8814, "y": 7584, "sprite": "door_1_3", "pivot": {"x": 0, "y": 96, "type": 25}, "data": {"room": 23, "open": "right", "id": 163, "size": {"x": 5, "y": 96}, "hinge": "down"}},
             {"x": 7835, "y": 7680, "sprite": "door_1_3", "pivot": {"x": 0, "y": 96, "type": 25}, "data": {"room": 19, "open": "right", "id": 164, "size": {"x": 5, "y": 96}, "hinge": "down"}},
             {"x": 9056, "y": 1792, "sprite": "door_1_3", "pivot": {"x": 0, "y": 96, "type": 25}, "data": {"room": 74, "open": "left", "id": 165, "size": {"x": 5, "y": 96}, "hinge": "down"}},
             {"x": 9216, "y": 2560, "sprite": "door_1_3", "pivot": {"x": 0, "y": 96, "type": 25}, "data": {"room": 67, "open": "left", "id": 166, "size": {"x": 5, "y": 96}, "hinge": "down"}},
             {"x": 9088, "y": 2560, "sprite": "door_1_3", "pivot": {"x": 0, "y": 96, "type": 25}, "data": {"room": null, "open": "left", "id": 167, "size": {"x": 5, "y": 96}, "hinge": "down"}},
             {"x": 1152, "y": 6880, "sprite": "door_1_3", "pivot": {"x": 0, "y": 96, "type": 25}, "data": {"room": 2, "open": "left", "id": 168, "size": {"x": 5, "y": 96}, "hinge": "down"}},
-            {"x": 8032, "y": 7680, "sprite": "door_1_3", "pivot": {"x": 0, "y": 96, "type": 25}, "data": {"room": 24, "open": "left", "id": 169, "size": {"x": 5, "y": 96}, "hinge": "down"}}
+            {"x": 8032, "y": 7680, "sprite": "door_1_3", "pivot": {"x": 0, "y": 96, "type": 25}, "data": {"room": 23, "open": "left", "id": 169, "size": {"x": 5, "y": 96}, "hinge": "down"}}
         ];
-
+        
         for (let door of doors){
             var door_obj = this.add(new Door(game, door.x, door.y, door.sprite));
             door_obj.data = door.data;

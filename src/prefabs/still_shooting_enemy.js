@@ -1,4 +1,5 @@
 //Documentation for Phaser's (2.5.0) states:: phaser.io/docs/2.5.0/Phaser.State.html
+import SlowEnemyBullet from '../prefabs/slow_enemy_bullet';
 class StillShootingEnemy extends Phaser.Sprite {
 
   //initialization code in the constructor
@@ -6,17 +7,17 @@ class StillShootingEnemy extends Phaser.Sprite {
     super(game, x, y, sprite);
     this.data['velocityX'] = 100;
     this.data['life'] = 3;
-    this.animations.add('left', [0, 1, 2, 3], 8, true);
-    this.animations.add('right', [5, 6, 7, 8], 8, true);
+    this.data['points'] = 200;
+    this.weapon = new SlowEnemyBullet(this.game);
   }
 
   //Code ran on each frame of game
   update(game) {
-    
+    this.weapon.fire(this, game.data['player']);
   }
   
-  setup(){
-
+  setup(game){
+    game.data['enemy_weapons'].push(this.weapon)
   }
 
 
