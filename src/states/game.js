@@ -79,6 +79,8 @@ class Game extends Phaser.State {
         this.key_group = [];
         this.nextOpenDoorTip = 0;
         this.helpRate = 2500;
+        this.weapons_display = undefined;
+        this.weapons_display = [];
     }
 
     init(settings){
@@ -116,6 +118,10 @@ class Game extends Phaser.State {
         this.map.addTilesetImage('tiles', 'tiles');
         this.map.addTilesetImage('tiled_school', 'tiled_school');
 
+        this.map.setCollision(17);
+        this.map.setCollision(45);
+        this.map.setCollision(59);
+        this.map.setCollision(28);
         this.layer = this.map.createLayer('Tile Layer 1');
 
         for (var t = 0; t < this.solid_tiles.length; t++)
@@ -191,6 +197,13 @@ class Game extends Phaser.State {
         pause.events.onInputDown.add(this.pauseMenu, this);
         pause.scale.setTo(0.4, 0.4);
         this.createKey('arrows');
+
+        // Restructure this to allow for multiple weapons.
+        this.weapons_display = [this.game.add.sprite(700, 560, 'infinity'), this.game.add.sprite(750, 563, 'pencil')];
+        this.weapons_display[0].fixedToCamera = true;
+        this.weapons_display[0].scale.setTo(0.3, 0.3);
+        this.weapons_display[1].fixedToCamera = true;
+
     }
 
     //Code ran on each frame of game

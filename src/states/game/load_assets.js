@@ -62,5 +62,7 @@ assets.load = function (game) {
     game.load.spritesheet('arrows', 'assets/key_arrows.png');
     
     game.load.spritesheet('pause', 'assets/pause.png');
+    game.load.spritesheet('infinity', 'assets/infinite.png');
+
 };
 export default assets;
