@@ -218,10 +218,12 @@ class Game extends Phaser.State {
 
         // this must be last to not let the enemies push the player through the walls.
         this.game.physics.arcade.collide(this.player, this.layer);
-
+        
         // Some keyboard action
         if (this.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
+            this.game.data.score = this.score; // this isn't fulkod
             this.weapons[this.currentWeapon].fire(this.player, this);
+            this.score = this.game.data.score; // it's only that I have no better idea without more restructuring.
         }
 
         if (this.input.keyboard.isDown(Phaser.Keyboard.E)) {

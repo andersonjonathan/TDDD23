@@ -17,7 +17,6 @@ class SingleBullet extends Phaser.Group {
   }
 
   fire(source, game) {
-
     if (this.game.time.time < this.nextFire) { return; }
 
     var x = source.x + 10;
@@ -27,7 +26,9 @@ class SingleBullet extends Phaser.Group {
       this.throw_sound.play();
       this.throw_sound.volume = this.game.data.settings.sound.sfx;
     }
-
+    if (this.game.data.score !== 0) {
+      this.game.data.score -= 1;
+    }
     this.nextFire = this.game.time.time + this.fireRate;
 
   };
