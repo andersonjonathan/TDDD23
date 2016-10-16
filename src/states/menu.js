@@ -1,3 +1,5 @@
+import sound from '../utils/sound';
+
 class Menu extends Phaser.State {
 
   constructor() {
@@ -40,35 +42,9 @@ class Menu extends Phaser.State {
   }
   //Setup code, method called after preload
   create() {
-    console.log("menu");
-    if(this.game.data.settings.sound.bg_music == undefined){
-      this.game.data.settings.sound.bg_music = this.game.add.audio('background_sound');
-      this.game.data.settings.sound.bg_music.loopFull();
-      this.game.data.settings.sound.bg_music.volume = this.game.data.settings.sound.music;
-    }
     this.game.stage.backgroundColor = "#54d8e0";
-    var p_key = this.input.keyboard.addKey(Phaser.Keyboard.P);
-    p_key.onDown.add(this.startGame, this);
-
-    var music_sprite = 'sound_music';
-    var sfx_sprite = 'sound_music';
-    if (this.game.data.settings.sound.music == 0){
-      music_sprite = 'mute_music';
-    }
-    if (this.game.data.settings.sound.sfx == 0){
-      sfx_sprite = 'mute_sfx';
-    }
-    var music = this.game.add.sprite(10, 526, music_sprite);
-    music.scale.setTo(0.5, 0.5);
-    music.fixedToCamera = true;
-    music.inputEnabled = true;
-    music.events.onInputDown.add(this.toggleMusic, this);
-
-    var sfx = this.game.add.sprite(10, 462, sfx_sprite);
-    sfx.scale.setTo(0.5, 0.5);
-    sfx.fixedToCamera = true;
-    sfx.inputEnabled = true;
-    sfx.events.onInputDown.add(this.toggleSFX, this);
+    var play_key = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    play_key.onDown.add(this.startGame, this);
 
     this.new_game = this.game.add.button(300, 250, 'new_game', this.startGame, this, 1, 0, 0);
     this.new_game.fixedToCamera = true;
@@ -77,31 +53,9 @@ class Menu extends Phaser.State {
     this.help = this.game.add.button(300, 330, 'help', this.toHelp, this, 1, 0, 0);
     this.help.fixedToCamera = true;
     // var settings = this.game.add.button(this.game.world.centerX - 100, 370, 'settings', this.startGame, this, 1, 0, 0);
-
-
+    sound.init(this.game)
   }
 
-  toggleMusic (music) {
-    if (music.key == 'sound_music'){
-      music.loadTexture('mute_music', 0);
-      this.game.data.settings.sound.music = 0;
-      this.game.data.settings.sound.bg_music.volume = this.game.data.settings.sound.music;
-    } else {
-      music.loadTexture('sound_music', 0);
-      this.game.data.settings.sound.music = 1;
-      this.game.data.settings.sound.bg_music.volume = this.game.data.settings.sound.music;
-    }
-  }
-
-  toggleSFX (sfx) {
-    if (sfx.key == 'sound_sfx'){
-      sfx.loadTexture('mute_sfx', 0);
-      this.game.data.settings.sound.sfx = 0;
-    } else {
-      sfx.loadTexture('sound_sfx', 0);
-      this.game.data.settings.sound.sfx = 1;
-    }
-  }
   //Code ran on each frame of game
   update() {
 
@@ -110,7 +64,7 @@ class Menu extends Phaser.State {
     this.game.state.start('game',true, false,
         {
           'sound': {'sfx': this.game.data.settings.sound.sfx, 'music': this.game.data.settings.sound.music, 'bg_music': this.game.data.settings.sound.bg_music},
-          'help': {'open_door': true}
+          'help': {'open_door': 2, 'shoot': 1, 'baljan': 1, 'superpower': 1}
         });
   }
   highScore(){

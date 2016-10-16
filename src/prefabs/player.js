@@ -211,6 +211,48 @@ class Player extends Phaser.Sprite {
       }
     }
   }
+  moveThroughDoor(door){
+    this.data.immovable = true;
+    var in_door_frame = new Phaser.Point();
+    door.position.clone(in_door_frame);
+    if(door.data.hinge == "right"){
+      in_door_frame.subtract(door.data['size'].x / 2, 0);
+    } else {
+      in_door_frame.add(door.data['size'].x / 2, 0);
+    }
+    if(door.data.hinge == "down"){
+      in_door_frame.subtract(0, door.data['size'].y / 2);
+    } else {
+      in_door_frame.add(0, door.data['size'].y / 2);
+    }
+
+    var in_room = new Phaser.Point();
+    in_door_frame.clone(in_room);
+    if (door.data.open == "down") {
+      in_room.add(0, -80);
+      this.animations.play('up');
+      this.data.facing = 'n';
+    } else if (door.data.open == "up") {
+      in_room.add(0, 80);
+      this.animations.play('down');
+      this.data.facing = 's';
+    } else if (door.data.open == "right") {
+      this.animations.play('left');
+      this.data.facing = 'w';
+      in_room.add(-80, 0);
+    } else if (door.data.open == "left") {
+      this.animations.play('right');
+      this.data.facing = 'e';
+      in_room.add(80, 0);
+    }
+    var tween = this.game.add.tween(this).to(in_door_frame, 500, Phaser.Easing.Linear.None, true);
+    tween.onComplete.add(function () {
+      var tween2 = this.game.add.tween(this).to(in_room, 0, Phaser.Easing.Linear.None, true);
+      tween2.onComplete.add(function () {
+        this.data.immovable = false;
+      }, this);
+    }, this);
+  }
   
   //Called when game is paused
   paused() {
