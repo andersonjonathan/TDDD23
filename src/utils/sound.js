@@ -9,7 +9,7 @@ sound.init = function (game){
 };
 sound.addSoundControllers = function (){
     var music_sprite = 'sound_music';
-    var sfx_sprite = 'sound_music';
+    var sfx_sprite = 'sound_sfx';
     if (this.game.data.settings.sound.music == 0){
         music_sprite = 'mute_music';
     }
