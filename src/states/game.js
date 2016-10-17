@@ -100,7 +100,8 @@ class Game extends Phaser.State {
                     'open_door': 2,
                     'shoot': 1,
                     'baljan': 1,
-                    'superpower': 1
+                    'superpower': 1,
+                    'nightmode': 1
                 }
             };
         }
@@ -264,6 +265,12 @@ class Game extends Phaser.State {
                 var maybeNight = Math.floor((Math.random() * 10) + 1);
                 if (maybeNight == 3) {
                     this.night = true;
+                    if(this.game.data.settings.help.nightmode >= 0) {
+
+                        this.game.data.settings.help.nightmode -= 1;
+                        this.createKey('e');
+                        this.createText('Night mode = points * 2')
+                    }
                 }
             }
         }

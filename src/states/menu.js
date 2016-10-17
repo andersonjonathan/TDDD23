@@ -64,7 +64,7 @@ class Menu extends Phaser.State {
     this.game.state.start('game',true, false,
         {
           'sound': {'sfx': this.game.data.settings.sound.sfx, 'music': this.game.data.settings.sound.music, 'bg_music': this.game.data.settings.sound.bg_music},
-          'help': {'open_door': 2, 'shoot': 1, 'baljan': 1, 'superpower': 1}
+          'help': {'open_door': 2, 'shoot': 1, 'baljan': 1, 'superpower': 1, 'nightmode': 1}
         });
   }
   highScore(){
