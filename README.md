@@ -55,6 +55,8 @@ Tiled
 * Klassrums inredning
 * Fler saker att plocka upp. (ammo, odödlighet en period) 
 
+* Mer poäng om man kör i night mode. x2 
+
 
 #TODO
 * Minst en enemy i varje rum.

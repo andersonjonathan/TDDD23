@@ -271,8 +271,10 @@ class Game extends Phaser.State {
         if (this.player.data.last_room != null){
             var enemies_in_room = this.player.data.last_room.get_enemies(this.enemies);
             if (enemies_in_room.length !== 0){
-                this.player.data.last_room.lock();
                 this.player.data.last_room.close();
+                if (!(this.player.data.last_room.name == "C1" || this.player.data.last_room.name == "C2")){
+                    this.player.data.last_room.lock();
+                }
             } else {
                 this.player.data.last_room.unlock();
                 this.player.data.last_room.open();
@@ -620,7 +622,11 @@ class Game extends Phaser.State {
         if(enemy.data['life'] <= 1){
             enemy.data['life'] = enemy.data['life'] - 1;
             enemy.kill();
-            this.score += enemy.data['points'];
+            var multi = 1;
+            if (this.night){
+                multi = 2;
+            }
+            this.score += enemy.data['points'] * multi;
         } else {
             enemy.data['life'] = enemy.data['life'] - 1;
         }
