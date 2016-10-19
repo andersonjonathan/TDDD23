@@ -15,10 +15,21 @@ var game_areas = [
     new GameArea(9, 199, 105, 276, 176, "Area 10", [12, 13, 14, 22]),
     new GameArea(10, 199, 176, 302, 262, "Final", [])
 ];
+game_areas[1].set_previous_area(game_areas[0]);
+game_areas[2].set_previous_area(game_areas[1]);
+game_areas[3].set_previous_area(game_areas[2]);
+game_areas[4].set_previous_area(game_areas[3]);
+game_areas[5].set_previous_area(game_areas[4]);
+game_areas[6].set_previous_area(game_areas[5]);
+game_areas[7].set_previous_area(game_areas[6]);
+game_areas[8].set_previous_area(game_areas[7]);
+game_areas[9].set_previous_area(game_areas[8]);
+game_areas[10].set_previous_area(game_areas[9]);
 
 class GameAreas{
     constructor() {
     }
+
 
     static get game_areas(){
         return game_areas;

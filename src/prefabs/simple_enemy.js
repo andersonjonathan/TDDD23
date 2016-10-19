@@ -4,12 +4,13 @@ class SimpleEnemy extends Phaser.Sprite {
   //initialization code in the constructor
   constructor(game, x, y, sprite) {
     super(game, x, y, sprite);
-    this.data['velocity'] = 200;
+    this.data['velocityX'] = 180;
+      this.data['velocityY'] = 40;
     this.data['velocity_obj'] = {x: 180, y: 40 };
     this.data['life'] = 3;
-    this.animations.add('left', [0, 1, 2, 3], 8, true);
-    this.animations.add('right', [5, 6, 7, 8], 8, true);
-    this.animations.play('right');
+    // this.animations.add('left', [0, 1, 2, 3], 8, true);
+    // this.animations.add('right', [5, 6, 7, 8], 8, true);
+    // this.animations.play('right');
     this.data['points'] = 50;
   }
 

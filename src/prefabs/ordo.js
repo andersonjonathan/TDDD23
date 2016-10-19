@@ -13,6 +13,7 @@ class Ordo extends Phaser.Sprite {
     this.data['velocity'] = 100;
     this.data['velocityX'] = 80;
     this.data['velocityY'] = 20;
+    this.data['velocity_obj'] = {x: 80, y:20};
     this.data['life'] = 3;
     this.data['points'] = 500;
     this.nextFire = 0;

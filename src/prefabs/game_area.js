@@ -12,6 +12,10 @@ class GameArea{
         this.fire_door_indexes = fire_doors;
         this.fire_doors = [];
         this.locked = true;
+        this.previous_area = undefined;
+    }
+    set_previous_area(previous_area){
+        this.previous_area = previous_area;
     }
     get_enemies(all_enemies) {
         var tmp = [];
@@ -25,6 +29,11 @@ class GameArea{
         });
         return tmp;
     };
+    in_area(x, y){
+        if (this.x0 <= x && x <= this.x1 && this.y0 <= y && y <= this.y1){
+            return true;
+        }
+    }
     lock(){
         this.locked = true;
         this.fire_doors.forEach(function (fire_door, index, array) {

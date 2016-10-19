@@ -49,13 +49,13 @@ http://renderhjs.net/shoebox/
 Tiled
 
 
-# Om vi hade haft mer tid
+# Kvar att fixa
 * Bättre genomtänkta rum.
 * Olika vapen att byta mellan. (olika antal skott m.m.)
 * Klassrums inredning
 * Fler saker att plocka upp. (ammo, odödlighet en period) 
 
-* Mer poäng om man kör i night mode. x2 
+* Titel text i menyn
 
 
 #TODO
