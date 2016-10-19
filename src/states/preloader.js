@@ -1,3 +1,6 @@
+
+import game_assets from './game/load_assets';
+
 class Preloader extends Phaser.State {
 
   constructor() {
@@ -7,6 +10,7 @@ class Preloader extends Phaser.State {
   }
 
   preload() {
+    this.game.stage.backgroundColor = "#54d8e0";
     //setup loading bar
     this.asset = this.add.sprite(this.game.width * 0.5 - 110, this.game.height * 0.5 - 10, 'preloader');
     this.load.setPreloadSprite(this.asset);
@@ -17,7 +21,8 @@ class Preloader extends Phaser.State {
   }
 
   loadResources() {
-    this.game.load.image('text_ready', 'assets/dude.png');
+
+    game_assets.load(this.game)
   }
 
   onLoadComplete() {

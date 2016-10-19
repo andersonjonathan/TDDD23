@@ -12,6 +12,11 @@ class Room{
         this.doors = [];
         this.locked = false;
     }
+    in_room(x, y){
+        if (this.x0 <= x && x <= this.x1 && this.y0 <= y && y <= this.y1){
+            return true;
+        }
+    }
     get_enemies(all_enemies) {
         var tmp = [];
         var room = this;

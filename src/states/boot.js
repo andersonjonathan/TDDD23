@@ -10,7 +10,7 @@ class Boot extends Phaser.State {
 
   create() {
     this.game.input.maxPointers = 1;
-
+    this.game.stage.backgroundColor = "#54d8e0";
     //setup device scaling
     if (this.game.device.desktop) {
       this.game.scale.pageAlignHorizontally = true;

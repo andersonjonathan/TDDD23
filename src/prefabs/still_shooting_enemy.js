@@ -20,6 +20,10 @@ class StillShootingEnemy extends Phaser.Sprite {
   
   setup(game){
     game.data['enemy_weapons'].push(this.weapon)
+    this.body.bounce.x = 0;
+    this.body.bounce.y = 0;
+    this.body.immovable = true;
+    this.body.moves = false;
   }
 
 

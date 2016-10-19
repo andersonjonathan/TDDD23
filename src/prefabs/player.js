@@ -24,22 +24,30 @@ class Player extends Phaser.Sprite {
     this.body.collideWorldBounds = true;
 
     // animations
-    this.animations.add('left', [9, 10, 6], 10, true);
-    this.animations.add('right', [11, 7, 8], 10, true);
-    this.animations.add('up', [5, 0, 1], 10, true);
-    this.animations.add('down', [2, 3, 4], 10, true);
-    this.animations.add('leftup', [18, 21, 22], 10, true);
-    this.animations.add('rightup', [12, 13, 17], 10, true);
-    this.animations.add('leftdown', [14, 15, 16], 10, true);
-    this.animations.add('rightdown', [19, 20, 23], 10, true);
-    this.animations.add('flashing_left', [9, 24, 10, 24, 6, 24], 10, true);
-    this.animations.add('flashing_right', [11, 24, 7, 24, 8, 24], 10, true);
-    this.animations.add('flashing_up', [5, 24, 0, 24, 1, 24], 10, true);
-    this.animations.add('flashing_down', [2, 24, 3, 24, 4, 24], 10, true);
-    this.animations.add('flashing_leftup', [18, 24, 21, 24, 22, 24], 10, true);
-    this.animations.add('flashing_rightup', [12, 24, 13, 24, 17, 24], 10, true);
-    this.animations.add('flashing_leftdown', [14, 24, 15, 24, 16, 24], 10, true);
-    this.animations.add('flashing_rightdown', [19, 24, 20, 24, 23, 24], 10, true);
+    this.animations.add('w', [9, 10, 6], 10, true);
+    this.animations.add('e', [11, 7, 8], 10, true);
+    this.animations.add('n', [5, 0, 1], 10, true);
+    this.animations.add('s', [2, 3, 4], 10, true);
+    this.animations.add('nw', [18, 21, 22], 10, true);
+    this.animations.add('ne', [12, 13, 17], 10, true);
+    this.animations.add('sw', [14, 15, 16], 10, true);
+    this.animations.add('se', [19, 20, 23], 10, true);
+    this.animations.add('flashing_w', [9, 24, 10, 24, 6, 24], 10, true);
+    this.animations.add('flashing_e', [11, 24, 7, 24, 8, 24], 10, true);
+    this.animations.add('flashing_n', [5, 24, 0, 24, 1, 24], 10, true);
+    this.animations.add('flashing_s', [2, 24, 3, 24, 4, 24], 10, true);
+    this.animations.add('flashing_nw', [18, 24, 21, 24, 22, 24], 10, true);
+    this.animations.add('flashing_ne', [12, 24, 13, 24, 17, 24], 10, true);
+    this.animations.add('flashing_sw', [14, 24, 15, 24, 16, 24], 10, true);
+    this.animations.add('flashing_se', [19, 24, 20, 24, 23, 24], 10, true);
+    this.animations.add('flashing_still_w', [6, 24], 10, true);
+    this.animations.add('flashing_still_e', [11, 24], 10, true);
+    this.animations.add('flashing_still_n', [5, 24], 10, true);
+    this.animations.add('flashing_still_s', [2, 24], 10, true);
+    this.animations.add('flashing_still_nw', [18, 24], 10, true);
+    this.animations.add('flashing_still_ne', [17, 24], 10, true);
+    this.animations.add('flashing_still_sw', [14, 24], 10, true);
+    this.animations.add('flashing_still_se', [23, 24], 10, true);
 
     this.data.original_speed = 320;
     this.data.super_speed = 320;
@@ -99,7 +107,10 @@ class Player extends Phaser.Sprite {
     this.in_room();
     this.in_game_area();
   }
-
+stop_animation(){
+  this.animations.stop();
+  this.frame = 4;
+}
 
   move(){
     if (this.data['immovable']){
@@ -116,10 +127,7 @@ class Player extends Phaser.Sprite {
     var speed = this.data.speed * diagonal_penalty;
 
     if (this.cursors.up.isDown && this.cursors.down.isDown){
-
-      this.animations.stop();
-
-      this.frame = 4;
+      this.stop_animation();
     } else if (this.cursors.up.isDown) {
       //  Move up
       this.body.velocity.y = -speed;
@@ -129,10 +137,7 @@ class Player extends Phaser.Sprite {
     }
 
     if (this.cursors.left.isDown && this.cursors.right.isDown){
-
-      this.animations.stop();
-
-      this.frame = 4;
+      this.stop_animation();
     } else if (this.cursors.left.isDown) {
       //  Move to the left
 
@@ -151,41 +156,35 @@ class Player extends Phaser.Sprite {
         animation_prefix = 'flashing_';
       }
       if (this.cursors.up.isDown && this.cursors.right.isDown){
-        this.animations.play(animation_prefix + 'rightup');
         this.data.facing = "ne";
       } else if (this.cursors.up.isDown && this.cursors.left.isDown) {
-        this.animations.play(animation_prefix + 'leftup');
         this.data.facing = "nw";
       } else if (this.cursors.up.isDown) {
-        this.animations.play(animation_prefix + 'up');
         this.data.facing = "n";
       } else if (this.cursors.down.isDown && this.cursors.right.isDown) {
-        this.animations.play(animation_prefix + 'rightdown');
         this.data.facing = "se";
       } else if (this.cursors.down.isDown && this.cursors.left.isDown) {
-        this.animations.play(animation_prefix + 'leftdown');
         this.data.facing = "sw";
       } else if (this.cursors.down.isDown) {
-        this.animations.play(animation_prefix + 'down');
         this.data.facing = "s";
       } else if (this.cursors.right.isDown) {
-        this.animations.play(animation_prefix + 'right');
         this.data.facing = "e";
       } else if (this.cursors.left.isDown) {
-        this.animations.play(animation_prefix + 'left');
         this.data.facing = "w";
       }
+
       this.nextUpdate = this.game.time.time + this.updateRate;
     }
     if (!(this.cursors.right.isDown || this.cursors.left.isDown || this.cursors.up.isDown || this.cursors.down.isDown)) {
       //  Stand still
       if (this.data['invincible'] == true) {
-        this.animations.play('flashing');
+        animation_prefix += 'still_';
       } else {
         this.animations.stop();
         this.frame = this.data.facing_mapping[this.data.facing];
       }
     }
+    this.animations.play(animation_prefix + this.data.facing);
   }
 
   in_room(){
@@ -229,18 +228,18 @@ class Player extends Phaser.Sprite {
     in_door_frame.clone(in_room);
     if (door.data.open == "down") {
       in_room.add(0, -80);
-      this.animations.play('up');
+      this.animations.play('n');
       this.data.facing = 'n';
     } else if (door.data.open == "up") {
       in_room.add(0, 80);
-      this.animations.play('down');
+      this.animations.play('s');
       this.data.facing = 's';
     } else if (door.data.open == "right") {
-      this.animations.play('left');
+      this.animations.play('w');
       this.data.facing = 'w';
       in_room.add(-80, 0);
     } else if (door.data.open == "left") {
-      this.animations.play('right');
+      this.animations.play('e');
       this.data.facing = 'e';
       in_room.add(80, 0);
     }

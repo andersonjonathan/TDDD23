@@ -21,10 +21,10 @@ class Enemies extends Phaser.Group {
   }
 
   generate_enemies(game, map, current_game_area){
-    map.createFromObjects('Others', 150, 'dude2', 4, true, false, this, KamikazeEnemy, undefined, current_game_area);
-    map.createFromObjects('Others', 246, 'dude2', 4, true, false, this, SimpleEnemy, undefined, current_game_area);
-    map.createFromObjects('Others', 245, 'dude2', 4, true, false, this, StillShootingEnemy, undefined, current_game_area);
-    map.createFromObjects('Others', 244, 'dude2', 4, true, false, this, FastEnemy, undefined, current_game_area);
+    map.createFromObjects('Others', 150, 'pi', 4, true, false, this, KamikazeEnemy, undefined, current_game_area);
+    map.createFromObjects('Others', 246, 'sum', 4, true, false, this, SimpleEnemy, undefined, current_game_area);
+    map.createFromObjects('Others', 245, 'exam', 4, true, false, this, StillShootingEnemy, undefined, current_game_area);
+    map.createFromObjects('Others', 244, 'integral', 4, true, false, this, FastEnemy, undefined, current_game_area);
     map.createFromObjects('Others', 166, 'ordo', 4, true, false, this, Ordo, undefined, current_game_area);
 
     this.children.forEach(function (element, index, array){

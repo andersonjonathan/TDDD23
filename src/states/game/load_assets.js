@@ -28,12 +28,9 @@ assets.load = function (game) {
     game.load.spritesheet('boots', 'assets/boots.png', 48, 48);
 
     // Local assets
-    game.load.spritesheet('dude2', 'assets/dude.png', 32, 48);
     game.load.spritesheet('baljan', 'assets/baljan-logo.png');
 
-
     game.load.spritesheet('invisibleBlock', 'assets/invisibleBlock.png');
-    game.load.spritesheet('dude', 'assets/dude.png');
     game.load.spritesheet('mute_music', 'assets/mute_music.png');
     game.load.spritesheet('mute_sfx', 'assets/mute_sfx.png');
     game.load.spritesheet('sound_music', 'assets/sound_music.png');
@@ -66,6 +63,10 @@ assets.load = function (game) {
     
     game.load.image('ordo', 'assets/ordo-boss.png');
     game.load.image('ordoBullet', 'assets/math_1.png');
+    game.load.image('integral', 'assets/trippel_integral.png');
+    game.load.image('exam', 'assets/exam.png');
+    game.load.image('sum', 'assets/sum.png');
+    game.load.image('pi', 'assets/pi.png');
 
 };
 export default assets;
